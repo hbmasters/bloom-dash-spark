@@ -2,7 +2,28 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { LogOut, Users, Minus, Plus, Check, ChevronDown } from "lucide-react";
+import { LogOut, Users, Minus, Plus, Check, ChevronDown, Clock, TrendingUp, Package } from "lucide-react";
+
+// Product image map
+import productFieldL from "@/assets/product-field-l.jpg";
+import productDeLuxe from "@/assets/product-de-luxe.jpg";
+import productFieldM from "@/assets/product-field-m.jpg";
+import productElegance from "@/assets/product-elegance.jpg";
+import productCharmeXL from "@/assets/product-charme-xl.jpg";
+import productLovely from "@/assets/product-lovely.jpg";
+import productChique from "@/assets/product-chique.jpg";
+import productTrend from "@/assets/product-trend.jpg";
+
+const productImages: Record<string, string> = {
+  "BQ Field L": productFieldL,
+  "BQ de Luxe": productDeLuxe,
+  "BQ Field M": productFieldM,
+  "BQ Elegance": productElegance,
+  "BQ Charme XL": productCharmeXL,
+  "BQ Lovely": productLovely,
+  "BQ Chique": productChique,
+  "BQ Trend": productTrend,
+};
 
 interface Line {
   id: string;
@@ -18,6 +39,26 @@ interface LineProduct {
   updated_at: string;
 }
 
+// Mock daily history
+const dailyHistory = [
+  { time: "07:00", product: "BQ Field L", persons: 3, duration: "2h30m", pieces: 400 },
+  { time: "09:30", product: "BQ de Luxe", persons: 2, duration: "1h45m", pieces: 250 },
+  { time: "11:15", product: "BQ Elegance", persons: 3, duration: "2h00m", pieces: 300 },
+];
+
+const hbMessages = [
+  { text: "Goed tempo — bezetting is optimaal verdeeld.", mode: "flow" as const },
+  { text: "Lijn draait stabiel. Output per persoon is hoog.", mode: "flow" as const },
+  { text: "Overweeg 1 extra persoon op BQ Charme XL.", mode: "correctie" as const },
+  { text: "Alle lijnen bezet. Sterke dagstart.", mode: "stabilisatie" as const },
+];
+
+const modeColors = {
+  flow: "border-accent/30 bg-accent/5",
+  stabilisatie: "border-primary/25 bg-primary/5",
+  correctie: "border-bloom-warm/25 bg-bloom-warm/5",
+};
+
 const PersonsModal = ({
   product,
   onClose,
@@ -28,6 +69,7 @@ const PersonsModal = ({
   onSave: (id: string, count: number) => void;
 }) => {
   const [count, setCount] = useState(product.persons_count);
+  const image = productImages[product.name];
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50" onClick={onClose}>
@@ -36,6 +78,12 @@ const PersonsModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-12 h-1.5 rounded-full bg-muted mx-auto mb-5 sm:hidden" />
+
+        {image && (
+          <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-4 shadow-md border border-border">
+            <img src={image} alt={product.name} className="w-full h-full object-cover" />
+          </div>
+        )}
 
         <h3 className="text-xl font-black text-foreground text-center mb-1">{product.name}</h3>
         <p className="text-sm text-muted-foreground text-center mb-6">Aantal personen instellen</p>
@@ -100,6 +148,7 @@ const ProductCard = ({
   product: LineProduct;
   onTap: () => void;
 }) => {
+  const image = productImages[product.name];
   const updatedAgo = product.updated_at
     ? (() => {
         const diff = Math.floor((Date.now() - new Date(product.updated_at).getTime()) / 60000);
@@ -112,22 +161,115 @@ const ProductCard = ({
   return (
     <button
       onClick={onTap}
-      className="w-full bg-card rounded-2xl border border-border p-5 text-left active:scale-[0.97] transition-transform touch-manipulation shadow-sm"
+      className="w-full bg-card rounded-2xl border border-border p-4 text-left active:scale-[0.97] transition-transform touch-manipulation shadow-sm flex gap-4 items-center"
     >
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-black text-foreground">{product.name}</h3>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-          <Users className="w-4 h-4 text-primary" />
-          <span className="text-xl font-mono font-black text-primary">{product.persons_count}</span>
+      {image ? (
+        <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-border shadow-sm">
+          <img src={image} alt={product.name} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center shrink-0 border border-border">
+          <Package className="w-6 h-6 text-muted-foreground" />
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-base font-black text-foreground truncate">{product.name}</h3>
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 shrink-0 ml-2">
+            <Users className="w-3.5 h-3.5 text-primary" />
+            <span className="text-lg font-mono font-black text-primary">{product.persons_count}</span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+          {product.updated_by && (
+            <span>Door <span className="font-semibold text-foreground/70">{product.updated_by}</span></span>
+          )}
+          <span className="ml-auto">{updatedAgo}</span>
         </div>
       </div>
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        {product.updated_by && (
-          <span>Bijgewerkt door <span className="font-semibold text-foreground/70">{product.updated_by}</span></span>
-        )}
-        <span className="ml-auto">{updatedAgo}</span>
-      </div>
     </button>
+  );
+};
+
+const HBMasterMobile = () => {
+  const [msgIndex, setMsgIndex] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setMsgIndex((p) => (p + 1) % hbMessages.length);
+        setVisible(true);
+      }, 400);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentMsg = hbMessages[msgIndex];
+
+  return (
+    <div className={`rounded-xl border overflow-hidden ${modeColors[currentMsg.mode]}`}>
+      <div className="flex items-center gap-3 px-4 py-3">
+        <div className="w-8 h-8 rounded-lg bg-gradient-brand flex items-center justify-center shrink-0 shadow-sm">
+          <span className="text-[9px] font-black text-primary-foreground">HB</span>
+        </div>
+        <div className="overflow-hidden flex-1 min-w-0">
+          <div className="text-[8px] font-black text-primary uppercase tracking-wider mb-0.5">HBMASTER</div>
+          <p className={`text-sm font-semibold text-foreground transition-all duration-300 ${
+            visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+          }`}>
+            {currentMsg.text}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DayHistory = () => {
+  const totalPieces = dailyHistory.reduce((s, h) => s + h.pieces, 0);
+  const totalPersons = dailyHistory.reduce((s, h) => s + h.persons, 0);
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
+      <div className="flex items-center gap-2 mb-3">
+        <Clock className="w-4 h-4 text-primary" />
+        <h3 className="text-xs font-black text-foreground uppercase tracking-wider">Vandaag</h3>
+        <div className="ml-auto flex items-center gap-3 text-[11px]">
+          <span className="font-mono font-bold text-accent">{totalPieces} stuks</span>
+          <span className="font-mono font-bold text-primary">{totalPersons} pers. gem.</span>
+        </div>
+      </div>
+      <div className="space-y-2">
+        {dailyHistory.map((entry, i) => {
+          const img = productImages[entry.product];
+          return (
+            <div key={i} className="flex items-center gap-3 py-2 border-b border-border/50 last:border-0">
+              {img ? (
+                <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-border">
+                  <img src={img} alt={entry.product} className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="w-9 h-9 rounded-lg bg-secondary shrink-0 flex items-center justify-center">
+                  <Package className="w-4 h-4 text-muted-foreground" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-bold text-foreground truncate">{entry.product}</div>
+                <div className="text-[10px] text-muted-foreground">
+                  {entry.time} · {entry.duration} · {entry.persons} pers.
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-sm font-mono font-bold text-foreground">{entry.pieces}</div>
+                <div className="text-[9px] text-muted-foreground">stuks</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
@@ -325,7 +467,7 @@ const Lijnbezetting = () => {
       </div>
 
       {/* Product cards */}
-      <main className="flex-1 p-4 space-y-3 pb-8">
+      <main className="flex-1 p-4 space-y-3 pb-4">
         {products.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -340,7 +482,17 @@ const Lijnbezetting = () => {
             />
           ))
         )}
+
+        {/* Day history */}
+        <div className="pt-2">
+          <DayHistory />
+        </div>
       </main>
+
+      {/* HBMaster sticky bottom */}
+      <div className="shrink-0 px-4 pb-4 pt-1 safe-area-bottom">
+        <HBMasterMobile />
+      </div>
 
       {/* Bottom sheet modal */}
       {editProduct && (
