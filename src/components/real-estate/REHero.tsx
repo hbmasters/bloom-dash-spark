@@ -64,7 +64,7 @@ const REHero = () => {
           <div className="flex flex-wrap gap-4">
             {[
               { icon: ShieldCheck, label: "SNF gecertificeerd" },
-              { icon: Award, label: "ABU conform" },
+              { icon: Award, label: "Gemeentelijk Convenant" },
               { icon: FileCheck, label: "Gemeentelijke vergunningen" },
             ].map(({ icon: Icon, label }) => (
               <div

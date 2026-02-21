@@ -9,8 +9,8 @@ const certs = [
   },
   {
     icon: Award,
-    title: "ABU Conform",
-    desc: "Wij opereren volledig conform ABU-richtlijnen en waarborgen eerlijke en veilige huisvestingsomstandigheden.",
+    title: "Gemeentelijk Convenant",
+    desc: "Wij opereren conform gemeentelijke convenanten en waarborgen eerlijke en veilige huisvestingsomstandigheden.",
   },
   {
     icon: FileCheck,
@@ -37,7 +37,7 @@ const RECertificates = () => {
           <p className="text-xs font-semibold tracking-[0.2em] text-[#3d8b9c] uppercase mb-3">Certificeringen</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Compliance & kwaliteit</h2>
           <p className="text-sm text-slate-400 max-w-md mx-auto">
-            SNF, ABU en gemeentelijke vergunningen.
+            SNF, Gemeentelijk Convenant en gemeentelijke vergunningen.
           </p>
         </div>
 
