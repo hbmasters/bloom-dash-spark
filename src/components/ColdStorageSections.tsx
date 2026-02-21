@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Printer, UserCheck, Hand, Cog, User, Package, CalendarDays, Zap, Trophy, X, Briefcase } from "lucide-react";
+import { Printer, UserCheck, Hand, Cog, User, Package, CalendarDays, Zap, Trophy, X, UserRound } from "lucide-react";
 import {
   printedOrders,
   pickedOrders,
@@ -30,6 +30,7 @@ const SectionHeader = ({
   totalMinutes,
   totalPcs,
   color,
+  progress,
 }: {
   icon: React.ReactNode;
   title: string;
@@ -37,25 +38,36 @@ const SectionHeader = ({
   totalMinutes: number;
   totalPcs: number;
   color: string;
+  progress?: number;
 }) => (
-  <div className="flex items-center justify-between mb-1.5 shrink-0">
-    <div className="flex items-center gap-1.5">
-      <div className={`w-5 h-5 rounded-md flex items-center justify-center ${color}`}>{icon}</div>
-      <h3 className="text-[10px] font-bold text-foreground uppercase tracking-wider">{title}</h3>
-      <span className="text-[9px] font-mono font-bold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded-full">
-        {count}
-      </span>
-    </div>
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-secondary border border-border">
-        <span className="text-[8px] text-muted-foreground font-semibold">⏱</span>
-        <span className="text-xs font-mono font-black text-foreground">{formatHours(totalMinutes)}</span>
+  <div className="mb-1.5 shrink-0">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1.5">
+        <div className={`w-5 h-5 rounded-md flex items-center justify-center ${color}`}>{icon}</div>
+        <h3 className="text-[10px] font-bold text-foreground uppercase tracking-wider">{title}</h3>
+        <span className="text-[9px] font-mono font-bold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded-full">
+          {count}
+        </span>
       </div>
-      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
-        <span className="text-xs font-mono font-black text-primary">{totalPcs.toLocaleString()}</span>
-        <span className="text-[8px] text-muted-foreground font-semibold">pcs</span>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-secondary border border-border">
+          <span className="text-[8px] text-muted-foreground font-semibold">⏱</span>
+          <span className="text-xs font-mono font-black text-foreground">{formatHours(totalMinutes)}</span>
+        </div>
+        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+          <span className="text-xs font-mono font-black text-primary">{totalPcs.toLocaleString()}</span>
+          <span className="text-[8px] text-muted-foreground font-semibold">pcs</span>
+        </div>
       </div>
     </div>
+    {progress !== undefined && (
+      <div className="h-1.5 rounded-full bg-secondary overflow-hidden mt-1">
+        <div
+          className={`h-full rounded-full ${color} transition-all duration-500`}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    )}
   </div>
 );
 
@@ -123,8 +135,8 @@ const PrintedOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick:
     onClick={onClick}
   >
     {order.accountManager && (
-      <div className="w-6 h-6 rounded-full bg-bloom-warm/15 border border-bloom-warm/25 flex items-center justify-center shrink-0" title={order.accountManager}>
-        <Briefcase className="w-3 h-3 text-bloom-warm" />
+      <div className="w-6 h-6 rounded-full bg-accent/15 border border-accent/25 flex items-center justify-center shrink-0" title={order.accountManager}>
+        <UserRound className="w-3 h-3 text-accent" />
       </div>
     )}
     <div className="flex-1 min-w-0">
@@ -150,47 +162,39 @@ const PrintedOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick:
   </div>
 );
 
-// Waiting order row with picker, advised line, departure, progress bar
+// Waiting order row — no per-order progress bar
 const WaitingOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick: () => void }) => (
   <div
-    className="flex flex-col gap-1 px-2 py-1.5 rounded-lg border border-border bg-card cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-colors"
+    className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-border bg-card cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-colors"
     onClick={onClick}
   >
-    <div className="flex items-center gap-2">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-bold text-foreground truncate">{order.name}</span>
-          {order.category && (
-            <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full bg-bloom-warm/15 text-bloom-warm border border-bloom-warm/25 shrink-0">
-              {order.category}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <User className="w-2.5 h-2.5 text-muted-foreground" />
-          <span className="text-[8px] text-muted-foreground">{order.pickedBy}</span>
-          {order.advisedLine && (
-            <span className="text-[8px] font-mono font-bold text-primary bg-primary/10 px-1 rounded">{order.advisedLine}</span>
-          )}
-          <CalendarDays className="w-2.5 h-2.5 text-muted-foreground ml-0.5" />
-          <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
-        </div>
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] font-bold text-foreground truncate">{order.name}</span>
+        {order.category && (
+          <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full bg-bloom-warm/15 text-bloom-warm border border-bloom-warm/25 shrink-0">
+            {order.category}
+          </span>
+        )}
       </div>
-      <div className="text-right shrink-0">
-        <div className="text-sm font-mono font-black text-foreground leading-none">{order.quantity}</div>
-        <div className="text-[7px] text-muted-foreground">{formatHours(order.estimatedMinutes)}</div>
+      <div className="flex items-center gap-1.5 mt-0.5">
+        <User className="w-2.5 h-2.5 text-muted-foreground" />
+        <span className="text-[8px] text-muted-foreground">{order.pickedBy}</span>
+        {order.advisedLine && (
+          <span className="text-[8px] font-mono font-bold text-primary bg-primary/10 px-1 rounded">{order.advisedLine}</span>
+        )}
+        <CalendarDays className="w-2.5 h-2.5 text-muted-foreground ml-0.5" />
+        <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
       </div>
     </div>
-    <div className="h-1 rounded-full bg-secondary overflow-hidden">
-      <div
-        className="h-full rounded-full bg-muted-foreground/30 transition-all duration-500"
-        style={{ width: `${order.progress || 0}%` }}
-      />
+    <div className="text-right shrink-0">
+      <div className="text-sm font-mono font-black text-foreground leading-none">{order.quantity}</div>
+      <div className="text-[7px] text-muted-foreground">{formatHours(order.estimatedMinutes)}</div>
     </div>
   </div>
 );
 
-// Picked card: photo with name overlay top-left, no progress bar
+// Picked card: clean photo, info bar below
 const PickedOrderCard = ({ order, onClick }: { order: PickedOrder; onClick: () => void }) => (
   <div
     className="bg-card rounded-xl border border-accent/25 overflow-hidden flex flex-col h-full shadow-sm cursor-pointer hover:border-accent/50 transition-colors"
@@ -198,24 +202,23 @@ const PickedOrderCard = ({ order, onClick }: { order: PickedOrder; onClick: () =
   >
     <div className="relative flex-1 min-h-0 overflow-hidden bg-secondary">
       <img src={order.image} alt={order.name} className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50" />
-      {/* Picker top-right with avatar */}
+      {/* Picker top-right */}
       <div className="absolute top-1.5 right-1.5 flex items-center gap-1.5 bg-card/90 backdrop-blur-sm rounded-full px-2 py-1 border border-border shadow-sm">
         <div className="w-5 h-5 rounded-full bg-gradient-brand flex items-center justify-center">
           <span className="text-[8px] font-black text-primary-foreground">{order.picker.charAt(0)}</span>
         </div>
         <span className="text-[10px] font-bold text-foreground">{order.picker}</span>
       </div>
-      {/* Bottom overlay: name, qty, hours, departure */}
-      <div className="absolute bottom-0 left-0 right-0 p-2">
-        <h3 className="text-sm font-bold text-white drop-shadow-md truncate">{order.name}</h3>
-        <div className="flex items-center justify-between mt-0.5">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-black text-white drop-shadow-md">{order.quantity} <span className="text-[9px] font-normal">pcs</span></span>
-            <span className="text-[9px] text-white/80 drop-shadow-md">{formatHours(order.estimatedMinutes)}</span>
-          </div>
-          <span className="text-[9px] font-semibold text-white/90 bg-black/30 backdrop-blur-sm px-1.5 py-0.5 rounded">{order.departureDate}</span>
-        </div>
+    </div>
+    {/* Info bar below photo */}
+    <div className="px-2 py-1.5 flex items-center justify-between">
+      <div className="min-w-0">
+        <h3 className="text-[10px] font-bold text-foreground truncate">{order.name}</h3>
+        <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
+      </div>
+      <div className="text-right shrink-0">
+        <div className="text-sm font-mono font-black text-foreground leading-none">{order.quantity}</div>
+        <div className="text-[7px] text-muted-foreground">{formatHours(order.estimatedMinutes)}</div>
       </div>
     </div>
   </div>
@@ -313,6 +316,7 @@ const ColdStorageSections = () => {
               totalMinutes={getTotalMinutes(waitingForHandOrders)}
               totalPcs={getTotalQuantity(waitingForHandOrders)}
               color="bg-bloom-warm"
+              progress={15}
             />
             <div className="flex-1 min-h-0 overflow-auto space-y-1 pr-1">
               {waitingForHandOrders.map((order) => (
@@ -328,6 +332,7 @@ const ColdStorageSections = () => {
               totalMinutes={getTotalMinutes(waitingForBandOrders)}
               totalPcs={getTotalQuantity(waitingForBandOrders)}
               color="bg-primary"
+              progress={25}
             />
             <div className="flex-1 min-h-0 overflow-auto space-y-1 pr-1">
               {waitingForBandOrders.map((order) => (
@@ -343,6 +348,7 @@ const ColdStorageSections = () => {
               totalMinutes={getTotalMinutes(waitingForOthersOrders)}
               totalPcs={getTotalQuantity(waitingForOthersOrders)}
               color="bg-bloom-sky"
+              progress={10}
             />
             <div className="flex-1 min-h-0 overflow-auto space-y-1 pr-1">
               {waitingForOthersOrders.map((order) => (
