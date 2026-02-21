@@ -424,10 +424,33 @@ const ColdStorageSections = () => {
                 color="bg-bloom-sky"
                 onIconClick={() => setPrintedOpen(false)}
               />
-              <div className="flex-1 min-h-0 overflow-auto space-y-1 pr-1">
-                {printedOrders.map((order) => (
-                  <PrintedOrderRow key={order.id} order={order} onClick={() => setSelectedOrder(order)} />
-                ))}
+              <div className="flex-1 min-h-0 overflow-auto space-y-2 pr-1">
+                {(["Hand", "Band", "Others"] as const).map((cat) => {
+                  const catOrders = printedOrders.filter((o) => o.category === cat);
+                  if (catOrders.length === 0) return null;
+                  const catMinutes = getTotalMinutes(catOrders);
+                  const catPcs = getTotalQuantity(catOrders);
+                  const catColor = categoryColors[cat] || "bg-secondary text-muted-foreground border-border";
+                  return (
+                    <div key={cat}>
+                      <div className="flex items-center justify-between mb-0.5 px-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-[7px] font-semibold px-1.5 py-0.5 rounded-full border ${catColor}`}>{cat}</span>
+                          <span className="text-[8px] font-mono font-bold text-muted-foreground">{catOrders.length}x</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[8px] font-mono font-bold text-foreground">{formatHours(catMinutes)}</span>
+                          <span className="text-[7px] text-muted-foreground">{catPcs} pcs</span>
+                        </div>
+                      </div>
+                      <div className="space-y-0.5">
+                        {catOrders.map((order) => (
+                          <PrintedOrderRow key={order.id} order={order} onClick={() => setSelectedOrder(order)} />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : (
