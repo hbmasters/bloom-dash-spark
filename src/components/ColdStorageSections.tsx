@@ -206,14 +206,13 @@ const WaitingOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick:
             {order.category}
           </span>
         )}
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
         {order.finishedTime && (
-          <span className="flex items-center gap-0.5 text-[7px] font-mono font-bold text-accent bg-accent/10 px-1 py-0.5 rounded-full border border-accent/20 shrink-0">
-            <Clock className="w-2 h-2" />
-            finished {order.finishedTime}
-          </span>
+          <span className="text-[8px] text-muted-foreground">· finished {order.finishedTime}</span>
         )}
       </div>
-      <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
       <div className="hidden group-hover/row:flex items-center gap-1.5 mt-0.5">
         <User className="w-2.5 h-2.5 text-muted-foreground" />
         <span className="text-[8px] text-muted-foreground">{order.pickedBy}</span>
