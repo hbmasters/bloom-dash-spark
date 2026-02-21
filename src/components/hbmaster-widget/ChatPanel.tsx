@@ -184,7 +184,7 @@ const ChatPanel = ({ config, status, onClose, isOpen, fullscreen, userName }: Ch
       <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3 py-8">
-            <MiniHologram state="idle" accentHsl={accentHsl} size={80} />
+            <MiniHologram state="idle" accentHsl={accentHsl} size={200} />
             <p className="text-xs font-mono">Stel een vraag aan HBMaster</p>
             <div className="flex flex-wrap gap-1.5 mt-1 max-w-xs justify-center">
               {["Wat is de status?", "Toon vandaag's cijfers", "Analyseer trends"].map(q => (
