@@ -146,6 +146,7 @@ const PrintedOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick:
           </span>
         )}
       </div>
+      <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
       <div className="hidden group-hover/row:flex items-center gap-1.5 mt-0.5">
         <User className="w-2.5 h-2.5 text-muted-foreground" />
         <span className="text-[8px] text-muted-foreground">{order.printedBy}</span>
@@ -175,6 +176,7 @@ const WaitingOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick:
           </span>
         )}
       </div>
+      <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
       <div className="hidden group-hover/row:flex items-center gap-1.5 mt-0.5">
         <User className="w-2.5 h-2.5 text-muted-foreground" />
         <span className="text-[8px] text-muted-foreground">{order.pickedBy}</span>
