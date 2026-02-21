@@ -1,64 +1,44 @@
-import { completedProducts, type CompletedProduct } from "@/data/mockData";
+import { completedProducts } from "@/data/mockData";
 
 const getBadge = (planned: number, actual: number) => {
-  const diff = planned - actual;
-  if (diff > 10) return { label: "⚡ Sneller dan verwacht", className: "bg-accent/15 text-accent border-accent/20" };
-  return { label: "👍 Volgens planning", className: "bg-bloom-sky/15 text-bloom-sky border-bloom-sky/20" };
-};
-
-const formatMinutes = (m: number) => {
-  const h = Math.floor(m / 60);
-  const min = m % 60;
-  return `${h}u ${min}m`;
-};
-
-const CompletedProductCard = ({ product }: { product: CompletedProduct }) => {
-  const badge = getBadge(product.plannedMinutes, product.actualMinutes);
-
-  return (
-    <div className="bg-gradient-card rounded-xl border border-border p-4 flex gap-4 items-center hover:border-accent/20 transition-colors duration-300">
-      <img
-        src={product.image}
-        alt={product.name}
-        className="w-20 h-20 rounded-xl object-cover shrink-0"
-      />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <h4 className="text-sm font-bold text-foreground truncate">{product.name}</h4>
-          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ${badge.className}`}>
-            {badge.label}
-          </span>
-        </div>
-        <div className="text-xs text-muted-foreground mb-2">{product.line} · Klaar om {product.completedAt}</div>
-        <div className="flex items-center gap-4">
-          <div>
-            <div className="text-[10px] text-muted-foreground">Aantal</div>
-            <div className="text-lg font-mono font-bold text-foreground">{product.quantity.toLocaleString("nl-NL")}</div>
-          </div>
-          <div>
-            <div className="text-[10px] text-muted-foreground">Gepland</div>
-            <div className="text-xs font-mono text-muted-foreground">{formatMinutes(product.plannedMinutes)}</div>
-          </div>
-          <div>
-            <div className="text-[10px] text-muted-foreground">Werkelijk</div>
-            <div className={`text-xs font-mono font-semibold ${product.actualMinutes <= product.plannedMinutes ? "text-accent" : "text-foreground"}`}>
-              {formatMinutes(product.actualMinutes)}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const ratio = actual / planned;
+  if (ratio < 0.85) return "🏆 Excellent";
+  if (ratio < 0.95) return "⚡ Sneller";
+  return "👍 Op target";
 };
 
 const CompletedProduction = () => {
   return (
-    <section>
-      <h2 className="text-xl font-bold text-foreground mb-5">Vandaag geproduceerd</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {completedProducts.map((product) => (
-          <CompletedProductCard key={product.id} product={product} />
-        ))}
+    <section className="flex flex-col h-full">
+      <h2 className="text-sm font-bold text-foreground uppercase tracking-wider mb-2 shrink-0">
+        Vandaag afgerond
+      </h2>
+      <div className="flex-1 min-h-0 space-y-1.5 overflow-hidden">
+        {completedProducts.map((item) => {
+          const badge = getBadge(item.plannedMinutes, item.actualMinutes);
+          return (
+            <div
+              key={item.id}
+              className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-gradient-card"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-foreground truncate">{item.name}</span>
+                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20 shrink-0 whitespace-nowrap">
+                    {badge}
+                  </span>
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">
+                  {item.line} · {item.completedAt}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-base font-mono font-black text-foreground leading-none">{item.quantity}</div>
+                <div className="text-[9px] text-muted-foreground mt-0.5">stuks</div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
