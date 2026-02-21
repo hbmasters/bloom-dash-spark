@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Printer, UserCheck, Hand, Cog, User, Package, CalendarDays, Zap, Trophy, X } from "lucide-react";
+import { Printer, UserCheck, Hand, Cog, User, Package, CalendarDays, Zap, Trophy, X, Briefcase } from "lucide-react";
 import {
   printedOrders,
   pickedOrders,
@@ -20,17 +20,22 @@ const formatHours = (minutes: number) => {
 const getTotalMinutes = (orders: ColdStorageOrder[]) =>
   orders.reduce((sum, o) => sum + o.estimatedMinutes, 0);
 
+const getTotalQuantity = (orders: ColdStorageOrder[]) =>
+  orders.reduce((sum, o) => sum + o.quantity, 0);
+
 const SectionHeader = ({
   icon,
   title,
   count,
   totalMinutes,
+  totalPcs,
   color,
 }: {
   icon: React.ReactNode;
   title: string;
   count: number;
   totalMinutes: number;
+  totalPcs: number;
   color: string;
 }) => (
   <div className="flex items-center justify-between mb-1.5 shrink-0">
@@ -41,9 +46,15 @@ const SectionHeader = ({
         {count}
       </span>
     </div>
-    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-secondary border border-border">
-      <span className="text-[8px] text-muted-foreground uppercase tracking-wider font-semibold">Total</span>
-      <span className="text-xs font-mono font-black text-foreground">{formatHours(totalMinutes)}</span>
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-secondary border border-border">
+        <span className="text-[8px] text-muted-foreground font-semibold">⏱</span>
+        <span className="text-xs font-mono font-black text-foreground">{formatHours(totalMinutes)}</span>
+      </div>
+      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+        <span className="text-xs font-mono font-black text-primary">{totalPcs.toLocaleString()}</span>
+        <span className="text-[8px] text-muted-foreground font-semibold">pcs</span>
+      </div>
     </div>
   </div>
 );
@@ -72,7 +83,7 @@ const ForceScanPopup = ({
       <div className="bg-secondary rounded-xl p-4 mb-4">
         <div className="text-sm font-bold text-foreground mb-1">{order.name}</div>
         <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-          <span>{order.quantity} pcs</span>
+          <span className="font-mono font-bold">{order.quantity} pcs</span>
           <span>{formatHours(order.estimatedMinutes)}</span>
           {order.departureDate && <span>Vertrek: {order.departureDate}</span>}
         </div>
@@ -88,10 +99,7 @@ const ForceScanPopup = ({
           Annuleren
         </button>
         <button
-          onClick={() => {
-            onConfirm();
-            onClose();
-          }}
+          onClick={() => { onConfirm(); onClose(); }}
           className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-brand text-sm font-bold text-primary-foreground shadow-md hover:opacity-90 transition-opacity"
         >
           Uitscannen
@@ -101,61 +109,74 @@ const ForceScanPopup = ({
   </div>
 );
 
-// Printed order row with printer and departure
+// Printed order row with account manager icon, printer and departure
 const PrintedOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick: () => void }) => (
   <div
     className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-border bg-card cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-colors"
     onClick={onClick}
   >
+    {order.accountManager && (
+      <div className="w-6 h-6 rounded-full bg-bloom-warm/15 border border-bloom-warm/25 flex items-center justify-center shrink-0" title={order.accountManager}>
+        <Briefcase className="w-3 h-3 text-bloom-warm" />
+      </div>
+    )}
     <div className="flex-1 min-w-0">
       <span className="text-[10px] font-bold text-foreground truncate block">{order.name}</span>
       <div className="flex items-center gap-1.5 mt-0.5">
         <User className="w-2.5 h-2.5 text-muted-foreground" />
         <span className="text-[8px] text-muted-foreground">{order.printedBy}</span>
-        <CalendarDays className="w-2.5 h-2.5 text-muted-foreground ml-1" />
+        <CalendarDays className="w-2.5 h-2.5 text-muted-foreground ml-0.5" />
         <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
       </div>
     </div>
     <div className="text-right shrink-0">
       <div className="text-sm font-mono font-black text-foreground leading-none">{order.quantity}</div>
-      <div className="text-[7px] text-muted-foreground">pcs</div>
+      <div className="text-[7px] text-muted-foreground">{formatHours(order.estimatedMinutes)}</div>
     </div>
   </div>
 );
 
-// Waiting order row with picker, advised line, departure
+// Waiting order row with picker, advised line, departure, progress bar
 const WaitingOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick: () => void }) => (
   <div
-    className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-border bg-card cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-colors"
+    className="flex flex-col gap-1 px-2 py-1.5 rounded-lg border border-border bg-card cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-colors"
     onClick={onClick}
   >
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-1.5">
-        <span className="text-[10px] font-bold text-foreground truncate">{order.name}</span>
-        {order.category && (
-          <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full bg-bloom-warm/15 text-bloom-warm border border-bloom-warm/25 shrink-0">
-            {order.category}
-          </span>
-        )}
+    <div className="flex items-center gap-2">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-bold text-foreground truncate">{order.name}</span>
+          {order.category && (
+            <span className="text-[7px] font-semibold px-1.5 py-0.5 rounded-full bg-bloom-warm/15 text-bloom-warm border border-bloom-warm/25 shrink-0">
+              {order.category}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <User className="w-2.5 h-2.5 text-muted-foreground" />
+          <span className="text-[8px] text-muted-foreground">{order.pickedBy}</span>
+          {order.advisedLine && (
+            <span className="text-[8px] font-mono font-bold text-primary bg-primary/10 px-1 rounded">{order.advisedLine}</span>
+          )}
+          <CalendarDays className="w-2.5 h-2.5 text-muted-foreground ml-0.5" />
+          <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
+        </div>
       </div>
-      <div className="flex items-center gap-1.5 mt-0.5">
-        <User className="w-2.5 h-2.5 text-muted-foreground" />
-        <span className="text-[8px] text-muted-foreground">{order.pickedBy}</span>
-        {order.advisedLine && (
-          <span className="text-[8px] font-mono font-bold text-primary bg-primary/10 px-1 rounded">{order.advisedLine}</span>
-        )}
-        <CalendarDays className="w-2.5 h-2.5 text-muted-foreground ml-1" />
-        <span className="text-[8px] text-muted-foreground">{order.departureDate}</span>
+      <div className="text-right shrink-0">
+        <div className="text-sm font-mono font-black text-foreground leading-none">{order.quantity}</div>
+        <div className="text-[7px] text-muted-foreground">{formatHours(order.estimatedMinutes)}</div>
       </div>
     </div>
-    <div className="text-right shrink-0">
-      <div className="text-sm font-mono font-black text-foreground leading-none">{order.quantity}</div>
-      <div className="text-[7px] text-muted-foreground">pcs</div>
+    <div className="h-1 rounded-full bg-secondary overflow-hidden">
+      <div
+        className="h-full rounded-full bg-muted-foreground/30 transition-all duration-500"
+        style={{ width: `${order.progress || 0}%` }}
+      />
     </div>
   </div>
 );
 
-// Picked card with photo
+// Picked card: photo with name overlay top-left, no progress bar
 const PickedOrderCard = ({ order, onClick }: { order: PickedOrder; onClick: () => void }) => (
   <div
     className="bg-card rounded-xl border border-accent/25 overflow-hidden flex flex-col h-full shadow-sm cursor-pointer hover:border-accent/50 transition-colors"
@@ -163,30 +184,24 @@ const PickedOrderCard = ({ order, onClick }: { order: PickedOrder; onClick: () =
   >
     <div className="relative flex-1 min-h-0 overflow-hidden bg-secondary">
       <img src={order.image} alt={order.name} className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-      <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center">
-        <div className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center shadow-md border-2 border-white/80 mb-0.5">
-          <span className="text-[10px] font-black text-primary-foreground">{order.picker.charAt(0)}</span>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50" />
+      {/* Picker top-right with avatar */}
+      <div className="absolute top-1.5 right-1.5 flex items-center gap-1.5 bg-card/90 backdrop-blur-sm rounded-full px-2 py-1 border border-border shadow-sm">
+        <div className="w-5 h-5 rounded-full bg-gradient-brand flex items-center justify-center">
+          <span className="text-[8px] font-black text-primary-foreground">{order.picker.charAt(0)}</span>
         </div>
-        <span className="text-xs font-bold text-white drop-shadow-md">{order.picker}</span>
+        <span className="text-[10px] font-bold text-foreground">{order.picker}</span>
       </div>
-      <div className="absolute top-1.5 right-1.5 bg-card/90 backdrop-blur-sm rounded-md px-1.5 py-0.5 border border-border shadow-sm">
-        <div className="text-sm font-mono font-black text-foreground leading-none">{order.quantity}</div>
-      </div>
-      <div className="absolute top-1.5 left-1.5 bg-card/90 backdrop-blur-sm rounded-md px-1.5 py-0.5 border border-border shadow-sm">
-        <span className="text-[8px] font-semibold text-muted-foreground">{order.departureDate}</span>
-      </div>
-    </div>
-    <div className="p-2 shrink-0">
-      <h3 className="text-[11px] font-bold text-foreground truncate mb-0.5">{order.name}</h3>
-      <div className="flex items-center gap-1.5">
-        <div className="flex-1 h-1.5 rounded-full bg-secondary overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-success transition-all duration-1000"
-            style={{ width: `${order.progress}%` }}
-          />
+      {/* Bottom overlay: name, qty, hours, departure */}
+      <div className="absolute bottom-0 left-0 right-0 p-2">
+        <h3 className="text-sm font-bold text-white drop-shadow-md truncate">{order.name}</h3>
+        <div className="flex items-center justify-between mt-0.5">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-black text-white drop-shadow-md">{order.quantity} <span className="text-[9px] font-normal">pcs</span></span>
+            <span className="text-[9px] text-white/80 drop-shadow-md">{formatHours(order.estimatedMinutes)}</span>
+          </div>
+          <span className="text-[9px] font-semibold text-white/90 bg-black/30 backdrop-blur-sm px-1.5 py-0.5 rounded">{order.departureDate}</span>
         </div>
-        <span className="text-[9px] font-mono font-bold text-foreground">{order.progress}%</span>
       </div>
     </div>
   </div>
@@ -243,6 +258,7 @@ const ColdStorageSections = () => {
               title="Printed"
               count={printedOrders.length}
               totalMinutes={getTotalMinutes(printedOrders)}
+              totalPcs={getTotalQuantity(printedOrders)}
               color="bg-bloom-sky"
             />
             <div className="flex-1 min-h-0 overflow-auto space-y-1 pr-1">
@@ -263,6 +279,7 @@ const ColdStorageSections = () => {
             title="Picked"
             count={pickedOrders.length}
             totalMinutes={getTotalMinutes(pickedOrders)}
+            totalPcs={getTotalQuantity(pickedOrders)}
             color="bg-accent"
           />
           <div className={`flex-1 min-h-0 grid ${gridCols} gap-2 overflow-auto`} style={{ gridTemplateRows: `repeat(${gridRows}, 1fr)` }}>
@@ -272,14 +289,15 @@ const ColdStorageSections = () => {
           </div>
         </div>
 
-        {/* Right: Waiting Hand + Band + Others stacked */}
+        {/* Right: Waiting Hand + Band + Others (Others smaller) */}
         <div className="flex flex-col min-h-0 gap-2">
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-[4] flex flex-col min-h-0">
             <SectionHeader
               icon={<Hand className="w-3 h-3 text-primary-foreground" />}
               title="Waiting Hand"
               count={waitingForHandOrders.length}
               totalMinutes={getTotalMinutes(waitingForHandOrders)}
+              totalPcs={getTotalQuantity(waitingForHandOrders)}
               color="bg-bloom-warm"
             />
             <div className="flex-1 min-h-0 overflow-auto space-y-1 pr-1">
@@ -288,12 +306,13 @@ const ColdStorageSections = () => {
               ))}
             </div>
           </div>
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-[4] flex flex-col min-h-0">
             <SectionHeader
               icon={<Cog className="w-3 h-3 text-primary-foreground" />}
               title="Waiting Band"
               count={waitingForBandOrders.length}
               totalMinutes={getTotalMinutes(waitingForBandOrders)}
+              totalPcs={getTotalQuantity(waitingForBandOrders)}
               color="bg-primary"
             />
             <div className="flex-1 min-h-0 overflow-auto space-y-1 pr-1">
@@ -302,12 +321,13 @@ const ColdStorageSections = () => {
               ))}
             </div>
           </div>
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-[2] flex flex-col min-h-0">
             <SectionHeader
               icon={<Package className="w-3 h-3 text-primary-foreground" />}
-              title="Waiting Others"
+              title="Others"
               count={waitingForOthersOrders.length}
               totalMinutes={getTotalMinutes(waitingForOthersOrders)}
+              totalPcs={getTotalQuantity(waitingForOthersOrders)}
               color="bg-bloom-sky"
             />
             <div className="flex-1 min-h-0 overflow-auto space-y-1 pr-1">
