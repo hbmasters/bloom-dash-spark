@@ -25,7 +25,7 @@ const ColdStorageHBMaster = () => {
   const currentMsg = coldStorageHBMessages[msgIndex];
 
   return (
-    <div className={`rounded-lg border overflow-hidden ${modeColors[currentMsg.mode]} max-w-2xl`}>
+    <div className={`rounded-lg border overflow-hidden ${modeColors[currentMsg.mode]}`}>
       <div className="flex items-center gap-2 px-3 py-1.5">
         <div className="w-6 h-6 rounded-md bg-gradient-brand flex items-center justify-center shrink-0 shadow-sm">
           <span className="text-[8px] font-black text-primary-foreground">HB</span>

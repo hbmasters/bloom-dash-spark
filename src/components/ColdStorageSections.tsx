@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Printer, UserCheck, Hand, Cog, User, Package, CalendarDays, Zap, Trophy, X, UserRound, Clock, ScanLine } from "lucide-react";
+import ColdStorageHBMaster from "@/components/ColdStorageHBMaster";
 import {
   printedOrders,
   pickedOrders,
@@ -471,6 +472,9 @@ const ColdStorageSections = () => {
             {pickedOrders.map((order) => (
               <PickedOrderCard key={order.id} order={order} onClick={() => setSelectedOrder(order)} />
             ))}
+          </div>
+          <div className="shrink-0 mt-2">
+            <ColdStorageHBMaster />
           </div>
         </div>
 
