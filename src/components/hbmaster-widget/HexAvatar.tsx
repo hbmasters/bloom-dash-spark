@@ -27,6 +27,9 @@ const HexAvatar = ({ accentHsl, size = 32, animate = true }: HexAvatarProps) => 
     const cx = size / 2;
     const cy = size / 2;
 
+    // Convert space-separated HSL "228 50% 55%" to comma-separated for canvas
+    const hsl = accentHsl.replace(/\s+/g, ", ");
+
     let animId: number;
     const draw = () => {
       timeRef.current += 0.016;
@@ -45,9 +48,9 @@ const HexAvatar = ({ accentHsl, size = 32, animate = true }: HexAvatarProps) => 
         else ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
       }
       ctx.closePath();
-      ctx.fillStyle = `hsla(${accentHsl}, ${0.12 + pulse * 0.06})`;
+      ctx.fillStyle = `hsla(${hsl}, ${0.12 + pulse * 0.06})`;
       ctx.fill();
-      ctx.strokeStyle = `hsla(${accentHsl}, ${0.3 + pulse * 0.2})`;
+      ctx.strokeStyle = `hsla(${hsl}, ${0.3 + pulse * 0.2})`;
       ctx.lineWidth = 1.2;
       ctx.stroke();
 
@@ -63,7 +66,7 @@ const HexAvatar = ({ accentHsl, size = 32, animate = true }: HexAvatarProps) => 
         else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
       }
       ctx.closePath();
-      ctx.strokeStyle = `hsla(${accentHsl}, ${0.2 + pulse * 0.15})`;
+      ctx.strokeStyle = `hsla(${hsl}, ${0.2 + pulse * 0.15})`;
       ctx.lineWidth = 0.8;
       ctx.stroke();
 
@@ -77,7 +80,7 @@ const HexAvatar = ({ accentHsl, size = 32, animate = true }: HexAvatarProps) => 
         else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
       }
       ctx.closePath();
-      ctx.strokeStyle = `hsla(${accentHsl}, ${0.15 + pulse * 0.1})`;
+      ctx.strokeStyle = `hsla(${hsl}, ${0.15 + pulse * 0.1})`;
       ctx.lineWidth = 0.6;
       ctx.stroke();
       ctx.restore();
@@ -85,12 +88,12 @@ const HexAvatar = ({ accentHsl, size = 32, animate = true }: HexAvatarProps) => 
       // Center dot
       ctx.beginPath();
       ctx.arc(cx, cy, s * 0.06, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${accentHsl}, ${0.5 + pulse * 0.3})`;
+      ctx.fillStyle = `hsla(${hsl}, ${0.5 + pulse * 0.3})`;
       ctx.fill();
 
       // Core glow
       const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, s * 0.3);
-      grad.addColorStop(0, `hsla(${accentHsl}, ${0.08 * pulse})`);
+      grad.addColorStop(0, `hsla(${hsl}, ${0.08 * pulse})`);
       grad.addColorStop(1, "transparent");
       ctx.fillStyle = grad;
       ctx.beginPath();
@@ -106,7 +109,7 @@ const HexAvatar = ({ accentHsl, size = 32, animate = true }: HexAvatarProps) => 
         ctx.rotate(rot);
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, Math.PI * 0.6);
-        ctx.strokeStyle = `hsla(${accentHsl}, ${0.08 + pulse * 0.06})`;
+        ctx.strokeStyle = `hsla(${hsl}, ${0.08 + pulse * 0.06})`;
         ctx.lineWidth = 0.5;
         ctx.stroke();
         ctx.restore();
