@@ -128,17 +128,15 @@ const categoryColors: Record<string, string> = {
   Others: "bg-bloom-sky/15 text-bloom-sky border-bloom-sky/25",
 };
 
-// Printed order row with account manager icon, category badge, printer and departure
+// Printed order row — clean by default, details on hover
 const PrintedOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick: () => void }) => (
   <div
-    className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-border bg-card cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-colors"
+    className="group/row flex items-center gap-2 px-2 py-1 rounded-lg border border-border bg-card cursor-pointer hover:border-primary/30 hover:bg-primary/5 hover:py-1.5 transition-all"
     onClick={onClick}
   >
-    {order.accountManager && (
-      <div className="w-6 h-6 rounded-full bg-accent/15 border border-accent/25 flex items-center justify-center shrink-0" title={order.accountManager}>
-        <UserRound className="w-3 h-3 text-accent" />
-      </div>
-    )}
+    <div className="hidden group-hover/row:flex w-6 h-6 rounded-full bg-accent/15 border border-accent/25 items-center justify-center shrink-0" title={order.accountManager}>
+      <UserRound className="w-3 h-3 text-accent" />
+    </div>
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-1.5">
         <span className="text-[10px] font-bold text-foreground truncate">{order.name}</span>
@@ -148,7 +146,7 @@ const PrintedOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick:
           </span>
         )}
       </div>
-      <div className="flex items-center gap-1.5 mt-0.5">
+      <div className="hidden group-hover/row:flex items-center gap-1.5 mt-0.5">
         <User className="w-2.5 h-2.5 text-muted-foreground" />
         <span className="text-[8px] text-muted-foreground">{order.printedBy}</span>
         <CalendarDays className="w-2.5 h-2.5 text-muted-foreground ml-0.5" />
@@ -162,10 +160,10 @@ const PrintedOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick:
   </div>
 );
 
-// Waiting order row — no per-order progress bar
+// Waiting order row — clean by default, details on hover
 const WaitingOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick: () => void }) => (
   <div
-    className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-border bg-card cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-colors"
+    className="group/row flex items-center gap-2 px-2 py-1 rounded-lg border border-border bg-card cursor-pointer hover:border-primary/30 hover:bg-primary/5 hover:py-1.5 transition-all"
     onClick={onClick}
   >
     <div className="flex-1 min-w-0">
@@ -177,7 +175,7 @@ const WaitingOrderRow = ({ order, onClick }: { order: ColdStorageOrder; onClick:
           </span>
         )}
       </div>
-      <div className="flex items-center gap-1.5 mt-0.5">
+      <div className="hidden group-hover/row:flex items-center gap-1.5 mt-0.5">
         <User className="w-2.5 h-2.5 text-muted-foreground" />
         <span className="text-[8px] text-muted-foreground">{order.pickedBy}</span>
         {order.advisedLine && (
