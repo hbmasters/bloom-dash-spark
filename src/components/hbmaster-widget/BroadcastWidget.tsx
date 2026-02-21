@@ -24,7 +24,7 @@ const BROADCASTS: Record<string, { text: string; source: string; severity: "succ
   realestate: [
     { text: "Alle woningen van HBM Real Estate zijn SNF-gecertificeerd.", source: "Certificering", severity: "success" },
     { text: "Inspectie Regio Aalsmeer afgerond — alle woningen goedgekeurd.", source: "Inspectie", severity: "success" },
-    { text: "ABU-conformiteit garandeert eerlijke huisvestingsvoorwaarden.", source: "Compliance", severity: "info" },
+    { text: "Gemeentelijk Convenant garandeert eerlijke huisvestingsvoorwaarden.", source: "Compliance", severity: "info" },
     { text: "Onderhoudsmeldingen worden binnen 24 uur in behandeling genomen.", source: "Onderhoud", severity: "info" },
     { text: "Brandveiligheid gecontroleerd — alle installaties gecertificeerd.", source: "Veiligheid", severity: "success" },
     { text: "Gemeentelijke vergunningen Haarlemmermeer verlengd tot 2027.", source: "Vergunningen", severity: "success" },
