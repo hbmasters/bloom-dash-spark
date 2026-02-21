@@ -307,8 +307,6 @@ const ScanInPopup = ({
   onClose: () => void;
   onConfirm: (pickerName: string) => void;
 }) => {
-  const [selectedPicker, setSelectedPicker] = useState<string | null>(null);
-
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
       <div
@@ -343,47 +341,23 @@ const ScanInPopup = ({
           </div>
         </div>
 
-        {/* Person selector */}
-        <div className="mb-4">
+        {/* Person selector — single click assigns */}
+        <div>
           <p className="text-xs font-bold text-foreground mb-2 uppercase tracking-wider">Wie gaat dit uitgooien?</p>
           <div className="grid grid-cols-4 gap-2">
             {availablePickers.map((picker) => (
               <button
                 key={picker.id}
-                onClick={() => setSelectedPicker(picker.name)}
-                className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all ${
-                  selectedPicker === picker.name
-                    ? "border-accent bg-accent/10 shadow-sm"
-                    : "border-border bg-card hover:border-primary/30 hover:bg-primary/5"
-                }`}
+                onClick={() => { onConfirm(picker.name); onClose(); }}
+                className="flex flex-col items-center gap-1 p-2 rounded-xl border border-border bg-card hover:border-accent hover:bg-accent/10 transition-all"
               >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  selectedPicker === picker.name ? "bg-gradient-brand" : "bg-secondary"
-                }`}>
-                  <span className={`text-[10px] font-black ${
-                    selectedPicker === picker.name ? "text-primary-foreground" : "text-muted-foreground"
-                  }`}>{picker.name.charAt(0)}</span>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary group-hover:bg-gradient-brand">
+                  <span className="text-[10px] font-black text-muted-foreground">{picker.name.charAt(0)}</span>
                 </div>
                 <span className="text-[9px] font-bold text-foreground">{picker.name}</span>
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
-          >
-            Annuleren
-          </button>
-          <button
-            onClick={() => { if (selectedPicker) { onConfirm(selectedPicker); onClose(); } }}
-            disabled={!selectedPicker}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-brand text-sm font-bold text-primary-foreground shadow-md hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            Toewijzen
-          </button>
         </div>
       </div>
     </div>
