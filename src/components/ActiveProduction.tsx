@@ -1,16 +1,17 @@
-import { Play, Clock, Users, AlertCircle } from "lucide-react";
+import { Play, Clock, Users, AlertCircle, Zap, Rocket, ThumbsUp } from "lucide-react";
 import { activeProducts, type ActiveProduct } from "@/data/mockData";
 
 const statusConfig = {
-  "op-schema": { label: "Op schema", className: "bg-bloom-sky/15 text-bloom-sky" },
-  "sneller": { label: "⚡ Sneller dan gepland", className: "bg-accent/15 text-accent" },
-  "onder-check": { label: "Onder check", className: "bg-bloom-warm/15 text-bloom-warm" },
+  "op-schema": { label: "Op schema", icon: <ThumbsUp className="w-3 h-3" />, className: "bg-bloom-sky/15 text-bloom-sky" },
+  "sneller": { label: "Sneller dan gepland", icon: <Zap className="w-3 h-3" />, className: "bg-accent/15 text-accent" },
+  "hoog-tempo": { label: "Hoog tempo", icon: <Rocket className="w-3 h-3" />, className: "bg-bloom-warm/15 text-bloom-warm" },
+  "onder-check": { label: "Onder check", icon: <AlertCircle className="w-3 h-3" />, className: "bg-bloom-warm/15 text-bloom-warm" },
 };
 
 const formatDuration = (minutes: number) => {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  return h > 0 ? `${h}u ${m}m` : `${m}m`;
+  return h > 0 ? `${h}u${m}m` : `${m}m`;
 };
 
 const ActiveProductCard = ({ product }: { product: ActiveProduct }) => {
@@ -18,117 +19,75 @@ const ActiveProductCard = ({ product }: { product: ActiveProduct }) => {
   const status = statusConfig[product.status];
 
   return (
-    <div className="bg-gradient-card rounded-2xl border border-border overflow-hidden hover:glow-primary transition-all duration-500 group">
-      {/* Image */}
-      <div className="relative h-44 overflow-hidden bg-secondary">
+    <div className="bg-gradient-card rounded-xl border border-border overflow-hidden flex flex-col h-full group">
+      {/* Large product image */}
+      <div className="relative flex-[5] min-h-0 overflow-hidden bg-secondary">
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute top-3 left-3 flex gap-2">
-          <span className={`text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-md ${status.className}`}>
+        {/* Status badge */}
+        <div className="absolute top-2 left-2">
+          <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-md ${status.className}`}>
+            {status.icon}
             {status.label}
           </span>
         </div>
-        <div className="absolute top-3 right-3">
-          <span className="text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-md bg-card/80 text-foreground border border-border/50">
+        {/* Line badge */}
+        <div className="absolute top-2 right-2">
+          <span className="text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-md bg-card/80 text-foreground border border-border/50">
             {product.line}
           </span>
         </div>
-        {product.status === "sneller" && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-success" />
-        )}
+        {/* Speed overlay */}
+        <div className="absolute bottom-2 right-2 bg-card/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-accent/30">
+          <div className="text-[8px] text-accent uppercase tracking-wider font-bold">stuks/u</div>
+          <div className="text-xl font-mono font-black text-accent text-glow-success leading-none">{product.piecesPerHour}</div>
+        </div>
       </div>
 
-      <div className="p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-bold text-foreground truncate">{product.name}</h3>
-          <div className="flex items-center gap-1 text-accent text-xs font-medium shrink-0 ml-2">
-            <Play className="w-3.5 h-3.5 fill-current" />
-            Actief
-          </div>
-        </div>
+      {/* Info */}
+      <div className="flex-[3] p-3 flex flex-col justify-between min-h-0">
+        <div>
+          <h3 className="text-base font-bold text-foreground truncate mb-1">{product.name}</h3>
 
-        {/* Under check info */}
-        {product.status === "onder-check" && product.checkStartTime && (
-          <div className="mb-3 p-3 rounded-lg bg-bloom-warm/5 border border-bloom-warm/20">
-            <div className="flex items-center gap-1.5 text-bloom-warm text-xs font-semibold mb-1.5">
-              <AlertCircle className="w-3.5 h-3.5" />
-              Check actief
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <div>
-                <span className="text-muted-foreground">Gestart</span>
-                <div className="font-mono font-semibold text-foreground">{product.checkStartTime}</div>
+          {/* Under check info */}
+          {product.status === "onder-check" && product.checkStartTime && (
+            <div className="mb-2 p-2 rounded-lg bg-bloom-warm/5 border border-bloom-warm/20">
+              <div className="flex items-center gap-1 text-bloom-warm text-[10px] font-bold mb-1">
+                <AlertCircle className="w-3 h-3" />
+                Check actief
               </div>
-              <div>
-                <span className="text-muted-foreground">Personen</span>
-                <div className="font-mono font-semibold text-foreground">{product.checkPeople}</div>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Klaar om</span>
-                <div className="font-mono font-semibold text-foreground">{product.checkEndTime}</div>
+              <div className="flex gap-3 text-[10px]">
+                <div><span className="text-muted-foreground">Start </span><span className="font-mono font-bold text-foreground">{product.checkStartTime}</span></div>
+                <div><span className="text-muted-foreground">Pers. </span><span className="font-mono font-bold text-foreground">{product.checkPeople}</span></div>
+                <div><span className="text-muted-foreground">Klaar </span><span className="font-mono font-bold text-foreground">{product.checkEndTime}</span></div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Meta info */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-            <div>
-              <div className="text-[10px] text-muted-foreground">Start</div>
-              <div className="text-xs font-mono font-semibold text-foreground">{product.startTime}</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-            <div>
-              <div className="text-[10px] text-muted-foreground">Einde</div>
-              <div className="text-xs font-mono font-semibold text-foreground">{product.expectedEndTime}</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-muted-foreground" />
-            <div>
-              <div className="text-[10px] text-muted-foreground">Personen</div>
-              <div className="text-xs font-mono font-semibold text-foreground">{product.people}</div>
-            </div>
+          {/* Meta row */}
+          <div className="flex items-center gap-3 text-[10px] text-muted-foreground mb-2">
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{product.startTime}–{product.expectedEndTime}</span>
+            <span className="flex items-center gap-1"><Users className="w-3 h-3" />{product.people} pers.</span>
+            <span>{formatDuration(product.minutesActive)} bezig</span>
           </div>
         </div>
 
         {/* Progress */}
-        <div className="mb-3">
-          <div className="flex justify-between text-xs mb-1.5">
-            <span className="text-muted-foreground">Voortgang — {formatDuration(product.minutesActive)} bezig</span>
+        <div>
+          <div className="flex justify-between text-[10px] mb-1">
+            <span className="font-mono font-bold text-foreground">{product.produced.toLocaleString("nl-NL")} <span className="text-muted-foreground font-normal">/ {product.target}</span></span>
             <span className="font-mono font-bold text-foreground">{pct}%</span>
           </div>
-          <div className="h-3 rounded-full bg-secondary overflow-hidden">
+          <div className="h-2 rounded-full bg-secondary overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-1000 ease-out ${
-                product.status === "sneller" ? "bg-gradient-success" : "bg-primary"
+                product.status === "sneller" || product.status === "hoog-tempo" ? "bg-gradient-success" : "bg-primary"
               }`}
               style={{ width: `${pct}%` }}
             />
-          </div>
-        </div>
-
-        {/* Counts */}
-        <div className="flex justify-between items-end">
-          <div>
-            <div className="text-[10px] text-muted-foreground">Geproduceerd</div>
-            <div className="text-2xl font-mono font-bold text-foreground animate-count-up">
-              {product.produced.toLocaleString("nl-NL")}
-              <span className="text-base font-normal text-muted-foreground"> / {product.target}</span>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-[10px] text-muted-foreground">Snelheid</div>
-            <div className="text-sm font-mono font-semibold text-accent">
-              {Math.round(product.produced / (product.minutesActive / 60))}/u
-            </div>
           </div>
         </div>
       </div>
@@ -138,13 +97,12 @@ const ActiveProductCard = ({ product }: { product: ActiveProduct }) => {
 
 const ActiveProduction = () => {
   return (
-    <section>
-      <div className="flex items-center gap-2.5 mb-5">
-        <div className="w-3 h-3 rounded-full bg-accent animate-pulse-slow" />
-        <h2 className="text-xl font-bold text-foreground">In productie</h2>
-        <span className="text-sm text-muted-foreground ml-1">({activeProducts.length} actief)</span>
+    <section className="flex flex-col h-full">
+      <div className="flex items-center gap-2 mb-2 shrink-0">
+        <div className="w-2 h-2 rounded-full bg-accent animate-pulse-slow" />
+        <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">In productie</h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
         {activeProducts.map((product) => (
           <ActiveProductCard key={product.id} product={product} />
         ))}

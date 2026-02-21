@@ -1,94 +1,96 @@
 import { useState, useEffect } from "react";
-import { Flower2, Users, Package, Zap, Sparkles } from "lucide-react";
-import { dashboardStats } from "@/data/mockData";
-
-const motivationMessages = [
-  "💐 Sterk tempo vandaag!",
-  "🌷 Topprestatie van het hele team!",
-  "🌻 We liggen voor op schema — geweldig!",
-  "🌸 Kwaliteit en snelheid — top combinatie!",
-  "🌺 Samen maken we het verschil!",
-];
+import { Flower2, Users, Package, Zap, Bot } from "lucide-react";
+import { dashboardStats, aiMessages } from "@/data/mockData";
 
 const LiveClock = () => {
   const [time, setTime] = useState(new Date());
-
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <div className="flex flex-col items-end">
-      <div className="text-4xl font-mono font-bold text-foreground tracking-tight tabular-nums">
-        {time.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+    <div className="flex flex-col items-end leading-none">
+      <div className="text-3xl font-mono font-black text-foreground tracking-tight tabular-nums">
+        {time.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}
       </div>
-      <div className="text-sm text-muted-foreground capitalize">
-        {time.toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" })}
+      <div className="text-[11px] text-muted-foreground capitalize mt-0.5">
+        {time.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" })}
       </div>
     </div>
   );
 };
 
-const StatPill = ({ icon, label, value, highlight }: { icon: React.ReactNode; label: string; value: string; highlight?: boolean }) => (
-  <div className={`flex items-center gap-3 px-5 py-3 rounded-xl border ${highlight ? "border-accent/30 bg-accent/5" : "border-border bg-card"}`}>
-    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${highlight ? "bg-accent/15 text-accent" : "bg-secondary text-muted-foreground"}`}>
-      {icon}
-    </div>
-    <div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className={`text-xl font-mono font-bold ${highlight ? "text-accent text-glow-success" : "text-foreground"}`}>{value}</div>
-    </div>
-  </div>
-);
-
 const ProductionHeader = () => {
-  const [msgIndex, setMsgIndex] = useState(0);
+  const [aiIndex, setAiIndex] = useState(0);
+  const [aiVisible, setAiVisible] = useState(true);
 
   useEffect(() => {
-    const timer = setInterval(() => setMsgIndex((p) => (p + 1) % motivationMessages.length), 6000);
+    const timer = setInterval(() => {
+      setAiVisible(false);
+      setTimeout(() => {
+        setAiIndex((p) => (p + 1) % aiMessages.length);
+        setAiVisible(true);
+      }, 400);
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <header className="border-b border-border bg-card/50 backdrop-blur-sm">
-      <div className="flex items-center justify-between px-8 py-4">
-        {/* Logo */}
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-bloom flex items-center justify-center shadow-lg">
-            <Flower2 className="w-8 h-8 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Hoorn Bloom<span className="text-primary">masters</span>
-            </h1>
-            <p className="text-sm text-muted-foreground">Productiescherm — Dagploeg</p>
-          </div>
+    <header className="flex items-center gap-4 px-5 py-3 border-b border-border bg-card/60 backdrop-blur-sm shrink-0">
+      {/* Logo */}
+      <div className="flex items-center gap-3 shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-gradient-bloom flex items-center justify-center">
+          <Flower2 className="w-6 h-6 text-primary-foreground" />
         </div>
-
-        {/* Stats */}
-        <div className="hidden lg:flex items-center gap-3">
-          <StatPill icon={<Users className="w-5 h-5" />} label="Actief" value={`${dashboardStats.totalPeople}`} />
-          <StatPill icon={<Package className="w-5 h-5" />} label="Geproduceerd" value={dashboardStats.totalProduced.toLocaleString("nl-NL")} highlight />
-          <StatPill icon={<Zap className="w-5 h-5" />} label="Gem. snelheid" value={`${dashboardStats.avgSpeed}/u`} />
-        </div>
-
-        {/* Motivation + Clock */}
-        <div className="flex items-center gap-6">
-          <div className="hidden xl:flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-bloom">
-            <Sparkles className="w-4 h-4 text-primary-foreground/80" />
-            <span className="text-sm font-semibold text-primary-foreground">{motivationMessages[msgIndex]}</span>
-          </div>
-          <LiveClock />
+        <div className="leading-tight">
+          <h1 className="text-base font-bold text-foreground tracking-tight">
+            Bloom<span className="text-primary">masters</span>
+          </h1>
+          <p className="text-[10px] text-muted-foreground">Productie Live</p>
         </div>
       </div>
 
-      {/* Mobile stats row */}
-      <div className="flex lg:hidden items-center gap-3 px-8 pb-4 overflow-x-auto">
-        <StatPill icon={<Users className="w-5 h-5" />} label="Actief" value={`${dashboardStats.totalPeople}`} />
-        <StatPill icon={<Package className="w-5 h-5" />} label="Geproduceerd" value={dashboardStats.totalProduced.toLocaleString("nl-NL")} highlight />
-        <StatPill icon={<Zap className="w-5 h-5" />} label="Gem. snelheid" value={`${dashboardStats.avgSpeed}/u`} />
+      {/* Stats */}
+      <div className="flex items-center gap-3 ml-4">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card">
+          <Users className="w-4 h-4 text-muted-foreground" />
+          <div className="leading-none">
+            <div className="text-[9px] text-muted-foreground uppercase tracking-wider">Actief</div>
+            <div className="text-lg font-mono font-black text-foreground">{dashboardStats.totalPeople}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card">
+          <Package className="w-4 h-4 text-muted-foreground" />
+          <div className="leading-none">
+            <div className="text-[9px] text-muted-foreground uppercase tracking-wider">Stuks</div>
+            <div className="text-lg font-mono font-black text-foreground">{dashboardStats.totalProduced.toLocaleString("nl-NL")}</div>
+          </div>
+        </div>
+        {/* DOMINANT SPEED METRIC */}
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-accent/30 bg-accent/8 glow-success">
+          <Zap className="w-5 h-5 text-accent" />
+          <div className="leading-none">
+            <div className="text-[9px] text-accent uppercase tracking-wider font-semibold">Stuks/uur</div>
+            <div className="text-2xl font-mono font-black text-accent text-glow-success">{dashboardStats.avgPiecesPerHour}</div>
+          </div>
+        </div>
       </div>
+
+      {/* AI Assistant */}
+      <div className="flex-1 mx-4">
+        <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-gradient-bloom overflow-hidden">
+          <Bot className="w-5 h-5 text-primary-foreground/90 shrink-0" />
+          <div className="overflow-hidden flex-1">
+            <div className="text-[9px] text-primary-foreground/60 uppercase tracking-wider font-semibold mb-0.5">AI Assistent</div>
+            <p className={`text-sm font-semibold text-primary-foreground truncate transition-all duration-300 ${aiVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}>
+              {aiMessages[aiIndex]}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <LiveClock />
     </header>
   );
 };
