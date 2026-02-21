@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Phone, Headphones, LogIn, Menu, X } from "lucide-react";
+import { Headphones, LogIn, Menu, X, TicketCheck } from "lucide-react";
 import RELogo from "./RELogo";
 
 const navItems = [
@@ -57,15 +57,9 @@ const REHeader = () => {
             <LogIn size={16} />
             Login
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#3d8b9c] hover:text-white border border-[#3d8b9c]/50 rounded-lg hover:bg-[#3d8b9c]/10 transition-all">
-            <Headphones size={16} />
-            Support
-          </button>
-          <button
-            onClick={() => handleNav("#re-contact")}
-            className="px-5 py-2 text-sm font-semibold text-white bg-[#3d8b9c] rounded-lg hover:bg-[#357f8e] transition-all shadow-lg shadow-[#3d8b9c]/20"
-          >
-            Contact opnemen
+          <button className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-[#3d8b9c] rounded-lg hover:bg-[#357f8e] transition-all shadow-lg shadow-[#3d8b9c]/20">
+            <TicketCheck size={16} />
+            Support Ticket
           </button>
         </div>
 
@@ -96,16 +90,10 @@ const REHeader = () => {
               <button className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm text-slate-300 border border-slate-600 rounded-lg">
                 <LogIn size={16} /> Login
               </button>
-              <button className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm text-[#3d8b9c] border border-[#3d8b9c]/50 rounded-lg">
-                <Headphones size={16} /> Support
+              <button className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white bg-[#3d8b9c] rounded-lg">
+                <TicketCheck size={16} /> Support Ticket
               </button>
             </div>
-            <button
-              onClick={() => handleNav("#re-contact")}
-              className="mt-1 py-2.5 text-sm font-semibold text-white bg-[#3d8b9c] rounded-lg"
-            >
-              Contact opnemen
-            </button>
           </div>
         </div>
       )}
