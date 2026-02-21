@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import ColdStorage from "./pages/ColdStorage";
 import Auth from "./pages/Auth";
 import Lijnbezetting from "./pages/Lijnbezetting";
+import MissionControl from "./pages/MissionControl";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/cold-storage" element={<ColdStorage />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/lijnbezetting" element={<Lijnbezetting />} />
+          <Route path="/hbmaster" element={<MissionControl />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
