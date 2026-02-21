@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Users, Snowflake } from "lucide-react";
-import { coldStorageStats } from "@/data/coldStorageData";
+import { Users, Snowflake, Trophy, Zap } from "lucide-react";
+import { coldStorageStats, fastestPicker } from "@/data/coldStorageData";
 
 const LiveClock = () => {
   const [time, setTime] = useState(new Date());
@@ -40,6 +40,20 @@ const ColdStorageHeader = () => {
           <div className="leading-none">
             <div className="text-[8px] text-muted-foreground uppercase tracking-wider">Pickers</div>
             <div className="text-lg font-mono font-black text-foreground">{coldStorageStats.totalPickers}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-bloom-warm/30 bg-bloom-warm/5">
+          <Trophy className="w-4 h-4 text-bloom-warm" />
+          <div className="leading-none">
+            <div className="text-[8px] text-muted-foreground uppercase tracking-wider">Most Orders Today</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-black text-foreground">{fastestPicker.name}</span>
+              <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground">
+                <Zap className="w-2.5 h-2.5 text-bloom-warm" />
+                {fastestPicker.ordersCompleted}
+              </span>
+            </div>
           </div>
         </div>
 
