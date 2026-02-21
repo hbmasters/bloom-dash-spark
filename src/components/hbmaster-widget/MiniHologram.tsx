@@ -113,6 +113,11 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseleave", handleMouseLeave);
 
+    // Convert space-separated HSL "228 50% 55%" to comma-separated "228, 50%, 55%" for canvas API
+    const hsl = accentHsl.replace(/\s+/g, ", ");
+    // Extract hue for text rendering
+    const hue = hsl.split(",")[0] || "228";
+
     let animId: number;
     const draw = () => {
       timeRef.current += 0.016;
@@ -140,7 +145,7 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
             const startA = (Math.PI / 2) * j + 0.15;
             const endA = startA + 1.1 - i * 0.1;
             ctx.beginPath(); ctx.arc(0, 0, r, startA, endA);
-            ctx.strokeStyle = `hsla(${accentHsl}, ${0.06 + pulse * 0.08 - i * 0.015})`;
+            ctx.strokeStyle = `hsla(${hsl}, ${0.06 + pulse * 0.08 - i * 0.015})`;
             ctx.lineWidth = 1.5 - i * 0.3; ctx.stroke();
           }
           ctx.restore();
@@ -157,7 +162,7 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
           ctx.beginPath();
           ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
           ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
-          ctx.strokeStyle = `hsla(${accentHsl}, ${isMajor ? 0.2 + pulse * 0.15 : 0.08})`;
+          ctx.strokeStyle = `hsla(${hsl}, ${isMajor ? 0.2 + pulse * 0.15 : 0.08})`;
           ctx.lineWidth = isMajor ? 1.2 : 0.5; ctx.stroke();
         }
         ctx.restore();
@@ -170,7 +175,7 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
         const rot = t * (0.12 + i * 0.06) * spinMul * (i % 2 === 0 ? 1 : -1);
         ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot);
         ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * (1.0 + i * 0.15));
-        ctx.strokeStyle = `hsla(${accentHsl}, ${0.07 + pulse * 0.09 - i * 0.01})`;
+        ctx.strokeStyle = `hsla(${hsl}, ${0.07 + pulse * 0.09 - i * 0.01})`;
         ctx.lineWidth = 1.2; ctx.setLineDash([3 + i * 2, 7 + i * 2]); ctx.stroke();
         ctx.setLineDash([]);
         ctx.restore();
@@ -187,13 +192,13 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
           const x2 = cx + Math.cos(lineAngle) * outerR;
           const y2 = cy + Math.sin(lineAngle) * outerR;
           ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-          ctx.strokeStyle = `hsla(${accentHsl}, ${0.05 + pulse * 0.06})`;
+          ctx.strokeStyle = `hsla(${hsl}, ${0.05 + pulse * 0.06})`;
           ctx.lineWidth = 0.6; ctx.setLineDash([2, 5]); ctx.stroke(); ctx.setLineDash([]);
           const travelT = (t * 0.8 * spinMul + i * 0.5) % 1;
           const dotX = x1 + (x2 - x1) * travelT;
           const dotY = y1 + (y2 - y1) * travelT;
           ctx.beginPath(); ctx.arc(dotX, dotY, 1.8 * Math.max(scale, 0.5), 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(${accentHsl}, ${0.3 + pulse * 0.3})`; ctx.fill();
+          ctx.fillStyle = `hsla(${hsl}, ${0.3 + pulse * 0.3})`; ctx.fill();
         }
       }
 
@@ -210,7 +215,7 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
           ctx.moveTo(bx, by + dy * -bracketSize);
           ctx.lineTo(bx, by);
           ctx.lineTo(bx + dx * -bracketSize, by);
-          ctx.strokeStyle = `hsla(${accentHsl}, ${0.15 + pulse * 0.12})`;
+          ctx.strokeStyle = `hsla(${hsl}, ${0.15 + pulse * 0.12})`;
           ctx.lineWidth = 1.5; ctx.stroke();
         }
         ctx.restore();
@@ -220,10 +225,10 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
       if (size >= 150) {
         const sweepAngle = t * 0.5 * spinMul;
         const sweepGrad = ctx.createConicGradient(sweepAngle, cx, cy);
-        sweepGrad.addColorStop(0, `hsla(${accentHsl}, ${0.08 * pulse})`);
-        sweepGrad.addColorStop(0.08, `hsla(${accentHsl}, 0)`);
-        sweepGrad.addColorStop(0.5, `hsla(${accentHsl}, 0)`);
-        sweepGrad.addColorStop(1, `hsla(${accentHsl}, 0)`);
+        sweepGrad.addColorStop(0, `hsla(${hsl}, ${0.08 * pulse})`);
+        sweepGrad.addColorStop(0.08, `hsla(${hsl}, 0)`);
+        sweepGrad.addColorStop(0.5, `hsla(${hsl}, 0)`);
+        sweepGrad.addColorStop(1, `hsla(${hsl}, 0)`);
         ctx.fillStyle = sweepGrad;
         ctx.beginPath(); ctx.arc(cx, cy, 180 * scale, 0, Math.PI * 2); ctx.fill();
       }
@@ -250,14 +255,14 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
           if (dist > 200 * scale) continue;
           const connAlpha = Math.max(0, 1 - dist / (200 * scale)) * 0.15 * (0.5 + pulse * 0.5);
           ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
-          ctx.strokeStyle = `hsla(${accentHsl}, ${connAlpha})`;
+          ctx.strokeStyle = `hsla(${hsl}, ${connAlpha})`;
           ctx.lineWidth = 0.8; ctx.stroke();
 
           const dotT = (t * 0.4 * spinMul + i * 0.3) % 1;
           const dx = p1.x + (p2.x - p1.x) * dotT;
           const dy = p1.y + (p2.y - p1.y) * dotT;
           ctx.beginPath(); ctx.arc(dx, dy, 1.5 * Math.max(scale, 0.5), 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(${accentHsl}, ${connAlpha * 2})`; ctx.fill();
+          ctx.fillStyle = `hsla(${hsl}, ${connAlpha * 2})`; ctx.fill();
         }
       }
 
@@ -266,9 +271,9 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
         const nodePulse = Math.sin(t * 2.5 + hexNodes[i].pulsePhase) * 0.5 + 0.5;
         const nodeSize = (2.5 + nodePulse * 1.5) * Math.max(scale, 0.5);
         ctx.beginPath(); ctx.arc(p.x, p.y, nodeSize, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${accentHsl}, ${0.25 + pulse * 0.25})`; ctx.fill();
+        ctx.fillStyle = `hsla(${hsl}, ${0.25 + pulse * 0.25})`; ctx.fill();
         ctx.beginPath(); ctx.arc(p.x, p.y, nodeSize + 5 * scale, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${accentHsl}, ${0.03 + pulse * 0.03})`; ctx.fill();
+        ctx.fillStyle = `hsla(${hsl}, ${0.03 + pulse * 0.03})`; ctx.fill();
 
         if (size >= 120) {
           ctx.save(); ctx.translate(p.x, p.y);
@@ -281,7 +286,7 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
             else ctx.lineTo(Math.cos(ha) * hexR, Math.sin(ha) * hexR);
           }
           ctx.closePath();
-          ctx.strokeStyle = `hsla(${accentHsl}, ${0.15 + pulse * 0.15})`;
+          ctx.strokeStyle = `hsla(${hsl}, ${0.15 + pulse * 0.15})`;
           ctx.lineWidth = 0.6; ctx.stroke();
           ctx.restore();
         }
@@ -290,7 +295,7 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
       // ═══ CORE GLOW ═══
       const coreR = 55 * scale;
       const grad1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR + 20 * scale);
-      grad1.addColorStop(0, `hsla(${accentHsl}, ${0.2 * pulse})`);
+      grad1.addColorStop(0, `hsla(${hsl}, ${0.2 * pulse})`);
       grad1.addColorStop(0.4, `hsla(340, 40%, 65%, ${0.06 * pulse})`);
       grad1.addColorStop(1, "transparent");
       ctx.fillStyle = grad1;
@@ -306,9 +311,9 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
         else ctx.lineTo(Math.cos(a) * hr, Math.sin(a) * hr);
       }
       ctx.closePath();
-      ctx.strokeStyle = `hsla(${accentHsl}, ${0.3 + pulse * 0.25})`;
+      ctx.strokeStyle = `hsla(${hsl}, ${0.3 + pulse * 0.25})`;
       ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.fillStyle = `hsla(${accentHsl}, ${0.02 + pulse * 0.03})`; ctx.fill();
+      ctx.fillStyle = `hsla(${hsl}, ${0.02 + pulse * 0.03})`; ctx.fill();
 
       // Inner counter-rotating hex
       ctx.rotate(-t * 0.2 * spinMul);
@@ -320,7 +325,7 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
         else ctx.lineTo(Math.cos(a) * hr2, Math.sin(a) * hr2);
       }
       ctx.closePath();
-      ctx.strokeStyle = `hsla(${accentHsl}, ${0.12 + pulse * 0.12})`;
+      ctx.strokeStyle = `hsla(${hsl}, ${0.12 + pulse * 0.12})`;
       ctx.lineWidth = 0.8; ctx.stroke();
 
       // Third hexagon — fast spin
@@ -333,28 +338,28 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
         else ctx.lineTo(Math.cos(a) * hr3, Math.sin(a) * hr3);
       }
       ctx.closePath();
-      ctx.strokeStyle = `hsla(${accentHsl}, ${0.1 + pulse * 0.1})`;
+      ctx.strokeStyle = `hsla(${hsl}, ${0.1 + pulse * 0.1})`;
       ctx.lineWidth = 0.6; ctx.stroke();
       ctx.restore();
 
       // ═══ HBMASTER TEXT ═══
       if (size >= 150) {
         ctx.save(); ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.shadowColor = `hsla(${accentHsl}, ${pulse * 0.7})`;
+        ctx.shadowColor = `hsla(${hsl}, ${pulse * 0.7})`;
         ctx.shadowBlur = 30 * scale;
         const fontSize = Math.round(38 * scale);
         ctx.font = `900 ${fontSize}px 'Inter', sans-serif`;
         ctx.letterSpacing = `${Math.round(6 * scale)}px`;
-        ctx.fillStyle = `hsla(${accentHsl.split(",")[0] || "228"}, 55%, 38%, ${0.85 + pulse * 0.15})`;
+        ctx.fillStyle = `hsla(${hue}, 55%, 38%, ${0.85 + pulse * 0.15})`;
         ctx.fillText("HBMASTER", cx, cy - 10 * scale);
         ctx.shadowBlur = 50 * scale;
-        ctx.shadowColor = `hsla(${accentHsl}, ${pulse * 0.3})`;
-        ctx.fillStyle = `hsla(${accentHsl.split(",")[0] || "228"}, 50%, 50%, ${0.15 + pulse * 0.1})`;
+        ctx.shadowColor = `hsla(${hsl}, ${pulse * 0.3})`;
+        ctx.fillStyle = `hsla(${hue}, 50%, 50%, ${0.15 + pulse * 0.1})`;
         ctx.fillText("HBMASTER", cx, cy - 10 * scale);
         ctx.shadowBlur = 0;
         ctx.font = `600 ${Math.round(11 * scale)}px 'Inter', sans-serif`;
         ctx.letterSpacing = `${Math.round(4 * scale)}px`;
-        ctx.fillStyle = `hsla(${accentHsl}, ${0.4 + pulse * 0.2})`;
+        ctx.fillStyle = `hsla(${hsl}, ${0.4 + pulse * 0.2})`;
         ctx.fillText("MISSION CONTROL", cx, cy + 24 * scale);
         ctx.letterSpacing = "0px";
         ctx.restore();
@@ -384,9 +389,9 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
           }
           const barAlpha = isSpeaking ? 0.6 + freq1 * 0.3 : 0.08 + freq1 * 0.06;
           const grad = ctx.createLinearGradient(x, waveBaseY - h, x, waveBaseY + h);
-          grad.addColorStop(0, `hsla(${accentHsl}, ${barAlpha * 0.3})`);
-          grad.addColorStop(0.5, `hsla(${accentHsl}, ${barAlpha})`);
-          grad.addColorStop(1, `hsla(${accentHsl}, ${barAlpha * 0.3})`);
+          grad.addColorStop(0, `hsla(${hsl}, ${barAlpha * 0.3})`);
+          grad.addColorStop(0.5, `hsla(${hsl}, ${barAlpha})`);
+          grad.addColorStop(1, `hsla(${hsl}, ${barAlpha * 0.3})`);
           ctx.fillStyle = grad;
           ctx.beginPath();
           ctx.roundRect(x, waveBaseY - h, barW, h * 2, barW / 2);
@@ -427,7 +432,7 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
       // ═══ MOUSE HOVER GLOW ═══
       if (isHover) {
         const hoverGrad = ctx.createRadialGradient(mx, my, 0, mx, my, 70 * scale);
-        hoverGrad.addColorStop(0, `hsla(${accentHsl}, 0.07)`);
+        hoverGrad.addColorStop(0, `hsla(${hsl}, 0.07)`);
         hoverGrad.addColorStop(1, "transparent");
         ctx.fillStyle = hoverGrad;
         ctx.beginPath(); ctx.arc(mx, my, 70 * scale, 0, Math.PI * 2); ctx.fill();
@@ -441,7 +446,7 @@ const MiniHologram = ({ state, accentHsl, size = 120 }: MiniHologramProps) => {
         const p = particles[i];
         p.life++;
 
-        // Smooth physics (lerp + velocity damping) — exact AIHologram behavior
+        // Smooth physics (lerp + velocity damping)
         p.orbitAngle += p.orbitSpeed * spinMul;
         const targetX = cx + Math.cos(p.orbitAngle) * p.orbitRadius;
         const targetY = cy + Math.sin(p.orbitAngle) * p.orbitRadius;
