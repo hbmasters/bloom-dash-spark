@@ -85,11 +85,11 @@ const LabelBadge = ({ label }: { label: string }) => (
 
 const KanbanBoard = () => {
   return (
-    <div className="flex flex-col h-full p-4">
+    <div className="flex flex-col h-full p-3 md:p-4">
       <div className="flex items-center gap-2 mb-4">
         <LayoutGrid className="w-4 h-4 text-muted-foreground" />
         <h2 className="text-xs font-black text-foreground uppercase tracking-wider">Kanban Board</h2>
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="hidden md:flex items-center gap-3 ml-auto">
           {Object.entries(priorityConfig).map(([key, cfg]) => {
             const Icon = cfg.icon;
             return (
@@ -101,11 +101,11 @@ const KanbanBoard = () => {
         </div>
       </div>
 
-      <div className={`flex-1 min-h-0 grid gap-3 overflow-hidden`} style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }}>
+      <div className="flex-1 min-h-0 flex md:grid gap-3 overflow-x-auto md:overflow-hidden snap-x snap-mandatory" style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }}>
         {columns.map(col => {
           const colCards = cards.filter(c => c.status === col.status);
           return (
-            <div key={col.status} className="flex flex-col min-h-0">
+            <div key={col.status} className="flex flex-col min-h-0 min-w-[75vw] md:min-w-0 snap-center">
               <div className="flex items-center gap-2 mb-3">
                 <span className={`w-2 h-2 rounded-full ${col.dotColor}`} />
                 <span className="text-xs font-bold text-muted-foreground">{col.title}</span>
