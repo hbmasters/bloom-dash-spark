@@ -7,6 +7,8 @@ import AIHologram from "@/components/mission-control/AIHologram";
 import TelemetryPanel from "@/components/mission-control/TelemetryPanel";
 import KanbanBoard from "@/components/mission-control/KanbanBoard";
 import ChatHistory from "@/components/mission-control/ChatHistory";
+import MCBottomNav from "@/components/mission-control/MCBottomNav";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 type MCView = "chat" | "kanban" | "history" | "settings";
 
@@ -14,29 +16,49 @@ const MissionControl = () => {
   const [view, setView] = useState<MCView>("chat");
   const [aiState, setAiState] = useState<"idle" | "thinking" | "responding" | "loading">("idle");
   const [messageCount, setMessageCount] = useState(0);
+  const [showTelemetry, setShowTelemetry] = useState(false);
 
   return (
-    <div className="mc-dark flex h-screen w-full overflow-hidden">
-      <MCSidebar active={view} onNavigate={setView} />
+    <div className="mc-dark flex h-[100dvh] w-full overflow-hidden">
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex">
+        <MCSidebar active={view} onNavigate={setView} />
+      </div>
 
       <div className="flex flex-1 flex-col overflow-hidden relative">
         <MCHologramBackground />
         <MCTopBar view={view} />
 
         {/* Main content */}
-        <main className="flex-1 min-h-0 flex relative z-10">
+        <main className="flex-1 min-h-0 flex flex-col md:flex-row relative z-10">
           {/* Center panel */}
-          <div className="flex-1 min-w-0 flex flex-col">
+          <div className="flex-1 min-w-0 min-h-0 flex flex-col">
             {view === "chat" && (
-              <div className="flex-1 min-w-0 flex flex-col">
-                {/* Hologram */}
+              <div className="flex-1 min-w-0 min-h-0 flex flex-col">
+                {/* Hologram — responsive sizes */}
                 <div className={`shrink-0 flex justify-center transition-all duration-700 ease-out ${
-                  messageCount === 0 ? "py-6" : "py-2"
+                  messageCount === 0 ? "py-3 md:py-6" : "py-1 md:py-2"
                 }`}>
                   <AIHologram state={aiState} compact={messageCount > 0} />
                 </div>
                 <div className="flex-1 min-h-0">
                   <ChatThread onStateChange={setAiState} onMessageCount={setMessageCount} />
+                </div>
+
+                {/* Mobile telemetry toggle */}
+                <div className="md:hidden xl:hidden">
+                  <button
+                    onClick={() => setShowTelemetry(!showTelemetry)}
+                    className="w-full flex items-center justify-center gap-1 py-2 border-t border-border bg-card/60 backdrop-blur-sm text-muted-foreground text-[10px] font-mono uppercase tracking-wider"
+                  >
+                    {showTelemetry ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
+                    Telemetry
+                  </button>
+                  {showTelemetry && (
+                    <div className="h-64 overflow-y-auto border-t border-border">
+                      <TelemetryPanel />
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -54,13 +76,16 @@ const MissionControl = () => {
             )}
           </div>
 
-          {/* Right panel - Telemetry */}
+          {/* Right panel - Telemetry (desktop only) */}
           {view === "chat" && (
             <div className="hidden xl:block w-72 border-l border-border">
               <TelemetryPanel />
             </div>
           )}
         </main>
+
+        {/* Mobile bottom nav */}
+        <MCBottomNav active={view} onNavigate={setView} />
       </div>
     </div>
   );

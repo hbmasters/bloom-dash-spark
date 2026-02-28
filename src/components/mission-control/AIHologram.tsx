@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { flowerDrawers, FlowerType, FLOWER_TYPES, FLOWER_WEIGHTS } from "./flowerRenderers";
 
 interface Particle {
@@ -21,11 +21,33 @@ interface AIHologramProps {
 
 const AIHologram = ({ state, compact = false }: AIHologramProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const hexNodesRef = useRef<HexNode[]>([]);
   const timeRef = useRef(0);
   const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
   const [hovered, setHovered] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(480);
+
+  // Responsive size calculation
+  const responsiveSize = useMemo(() => {
+    if (compact) return Math.min(220, containerWidth * 0.55);
+    // Full hologram: scale down for mobile
+    return Math.min(480, containerWidth * 0.85, window.innerHeight * 0.4);
+  }, [compact, containerWidth]);
+
+  // Observe container width
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
   const pickFlowerType = useCallback((): FlowerType => {
     let r = Math.random(), cumul = 0;
@@ -71,16 +93,17 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const size = compact ? 220 : 480;
-    const dpr = window.devicePixelRatio || 1;
+    const size = Math.round(responsiveSize);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2); // cap DPR for perf on mobile
     canvas.width = size * dpr;
     canvas.height = size * dpr;
     ctx.scale(dpr, dpr);
     const cx = size / 2;
     const cy = size / 2;
 
-    // 4x particles: 640 full, 200 compact
-    const particleCount = compact ? 200 : 640;
+    // Scale particle count with size
+    const scaleFactor = size / 480;
+    const particleCount = compact ? Math.round(200 * Math.max(scaleFactor, 0.5)) : Math.round(640 * Math.max(scaleFactor, 0.4));
     particlesRef.current = Array.from({ length: particleCount }, () => createParticle(cx, cy));
 
     // Dynamic hex connection nodes
@@ -513,22 +536,23 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, [state, compact, createParticle]);
+  }, [state, compact, createParticle, responsiveSize]);
 
-  const canvasSize = compact ? 220 : 480;
+  const canvasSize = Math.round(responsiveSize);
 
   return (
     <div
-      className="relative flex flex-col items-center justify-center"
+      ref={containerRef}
+      className="relative flex flex-col items-center justify-center w-full"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <canvas
         ref={canvasRef}
-        className={`transition-opacity duration-300 ${hovered ? "cursor-crosshair" : ""}`}
+        className={`transition-opacity duration-300 max-w-full ${hovered ? "cursor-crosshair" : ""}`}
         style={{ width: canvasSize, height: canvasSize }}
       />
-      <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full -mt-4 transition-all duration-500
+      <div className={`flex items-center gap-2 px-3 md:px-4 py-1 md:py-1.5 rounded-full -mt-4 transition-all duration-500
         backdrop-blur-xl bg-card/70 border shadow-lg
         ${hovered ? "border-primary/30 shadow-primary/10" : "border-border/50"}`}>
         <div className="relative">
@@ -546,7 +570,7 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
             }`} />
           )}
         </div>
-        <span className="text-[10px] font-mono text-muted-foreground/80 uppercase tracking-[0.2em]">
+        <span className="text-[9px] md:text-[10px] font-mono text-muted-foreground/80 uppercase tracking-[0.2em]">
           {state === "responding" ? "Speaking" : state === "thinking" ? "Analyzing" : state === "loading" ? "Initializing" : hovered ? "Interactive" : "Online"}
         </span>
       </div>
