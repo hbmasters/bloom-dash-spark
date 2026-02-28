@@ -1,5 +1,12 @@
-import { MessageSquare, LayoutGrid, Clock, Settings, ArrowLeft } from "lucide-react";
+import { MessageSquare, LayoutGrid, Clock, Settings, ArrowLeft, PanelLeftClose, PanelLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type MCView = "chat" | "kanban" | "history" | "settings";
 
@@ -12,57 +19,97 @@ const navItems: { id: MCView; icon: typeof MessageSquare; label: string }[] = [
   { id: "chat", icon: MessageSquare, label: "Chat" },
   { id: "kanban", icon: LayoutGrid, label: "Kanban" },
   { id: "history", icon: Clock, label: "Historie" },
-  { id: "settings", icon: Settings, label: "Settings" },
+  { id: "settings", icon: Settings, label: "Instellingen" },
 ];
 
 const MCSidebar = ({ active, onNavigate }: MCSidebarProps) => {
   const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="w-16 lg:w-52 shrink-0 flex flex-col border-r border-border bg-card">
-      {/* Logo */}
-      <div className="p-3 lg:px-4 lg:py-5 border-b border-border">
-        <button onClick={() => navigate("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="w-4 h-4 shrink-0" />
-          <span className="hidden lg:block text-xs font-mono">Terug</span>
+    <aside
+      className={cn(
+        "flex h-screen flex-col bg-sidebar text-sidebar-foreground flex-shrink-0 transition-all duration-200 border-r border-sidebar-border",
+        collapsed ? "w-16" : "w-56"
+      )}
+    >
+      {/* Header */}
+      <div className="flex h-14 items-center border-b border-sidebar-border px-3 gap-2">
+        {!collapsed && (
+          <span className="flex-1 text-sm font-bold tracking-wide text-sidebar-primary-foreground pl-1">
+            HBMaster AI
+          </span>
+        )}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex h-8 w-8 items-center justify-center rounded-md text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors"
+        >
+          {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
         </button>
-        <div className="mt-3 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-brand flex items-center justify-center shadow-sm shrink-0">
-            <span className="text-[9px] font-black text-primary-foreground">HB</span>
-          </div>
-          <div className="hidden lg:block">
-            <div className="text-xs font-black text-foreground uppercase tracking-wider">HBMaster</div>
-            <div className="text-[9px] font-mono text-muted-foreground">Mission Control</div>
-          </div>
-        </div>
       </div>
 
-      {/* Nav items */}
-      <nav className="flex-1 p-2 space-y-1">
-        {navItems.map(item => (
-          <button
-            key={item.id}
-            onClick={() => onNavigate(item.id)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-              active === item.id
-                ? "bg-primary/10 text-primary shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-            }`}
-          >
-            <item.icon className="w-4 h-4 shrink-0" />
-            <span className="hidden lg:block">{item.label}</span>
-          </button>
-        ))}
+      {/* Back button */}
+      <div className="px-3 py-2 border-b border-sidebar-border">
+        <button
+          onClick={() => navigate("/")}
+          className={cn(
+            "flex items-center rounded-md text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors",
+            collapsed ? "justify-center px-0 py-2" : "gap-2 px-3 py-2 text-sm"
+          )}
+        >
+          <ArrowLeft className="w-4 h-4 flex-shrink-0" />
+          {!collapsed && <span className="text-xs">Terug</span>}
+        </button>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-2 px-2">
+        <ul className="space-y-0.5">
+          {navItems.map(item => {
+            const isActive = active === item.id;
+
+            const linkContent = (
+              <button
+                onClick={() => onNavigate(item.id)}
+                className={cn(
+                  "w-full flex items-center rounded-md transition-colors",
+                  collapsed ? "justify-center px-0 py-2.5" : "gap-3 px-3 py-2 text-sm",
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <item.icon className="h-4 w-4 flex-shrink-0" />
+                {!collapsed && <span className="flex-1 text-left">{item.label}</span>}
+              </button>
+            );
+
+            return (
+              <li key={item.id}>
+                {collapsed ? (
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={8}>
+                      {item.label}
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  linkContent
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </nav>
 
       {/* Bottom status */}
-      <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-2 px-2">
-          <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <span className="hidden lg:block text-[10px] font-mono text-muted-foreground">AI Online</span>
+      <div className="p-3 border-t border-sidebar-border">
+        <div className={cn("flex items-center gap-2", collapsed ? "justify-center" : "px-2")}>
+          <div className="w-2 h-2 rounded-full bg-sidebar-primary animate-pulse" />
+          {!collapsed && <span className="text-[10px] font-mono text-sidebar-muted">AI Online</span>}
         </div>
       </div>
-    </div>
+    </aside>
   );
 };
 

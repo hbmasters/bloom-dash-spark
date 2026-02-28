@@ -1,5 +1,7 @@
 import { useState } from "react";
 import MCSidebar from "@/components/mission-control/MCSidebar";
+import MCTopBar from "@/components/mission-control/MCTopBar";
+import { MCHologramBackground } from "@/components/mission-control/MCHologramBackground";
 import ChatThread from "@/components/mission-control/ChatThread";
 import AIHologram from "@/components/mission-control/AIHologram";
 import TelemetryPanel from "@/components/mission-control/TelemetryPanel";
@@ -14,36 +16,22 @@ const MissionControl = () => {
   const [messageCount, setMessageCount] = useState(0);
 
   return (
-    <div className="h-screen w-screen bg-background text-foreground flex overflow-hidden floral-watermark">
-      {/* Sidebar */}
+    <div className="flex h-screen w-full overflow-hidden">
       <MCSidebar active={view} onNavigate={setView} />
 
-      {/* Main content */}
-      <div className="flex-1 min-w-0 flex relative z-10">
-        {/* Center panel */}
-        <div className="flex-1 min-w-0 flex flex-col">
-          {/* Top bar — 2026 glassmorphism */}
-          <div className="shrink-0 h-14 border-b border-border/40 flex items-center px-5 justify-between backdrop-blur-lg bg-card/60">
-            <div className="flex items-center gap-3">
-              <div className="w-1.5 h-5 rounded-full bg-primary/60" />
-              <span className="text-xs font-black text-foreground uppercase tracking-[0.15em]">
-                {view === "chat" ? "HBMaster Chat" : view === "kanban" ? "Kanban Board" : view === "history" ? "Historie" : "Settings"}
-              </span>
-            </div>
-            {view === "chat" && (
-              <button className="text-[10px] font-mono text-muted-foreground/70 hover:text-foreground transition-all duration-300 px-3 py-1.5 rounded-xl hover:bg-primary/5 border border-transparent hover:border-border/50">
-                + Nieuw gesprek
-              </button>
-            )}
-          </div>
+      <div className="flex flex-1 flex-col overflow-hidden relative">
+        <MCHologramBackground />
+        <MCTopBar view={view} />
 
-          {/* Content area */}
-          <div className="flex-1 min-h-0 flex">
+        {/* Main content */}
+        <main className="flex-1 min-h-0 flex relative z-10">
+          {/* Center panel */}
+          <div className="flex-1 min-w-0 flex flex-col">
             {view === "chat" && (
               <div className="flex-1 min-w-0 flex flex-col">
                 {/* Hologram */}
                 <div className={`shrink-0 flex justify-center transition-all duration-700 ease-out ${
-                  messageCount === 0 ? "py-8" : "py-2"
+                  messageCount === 0 ? "py-6" : "py-2"
                 }`}>
                   <AIHologram state={aiState} compact={messageCount > 0} />
                 </div>
@@ -57,22 +45,22 @@ const MissionControl = () => {
             {view === "settings" && (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-primary/5 border border-border/50 mx-auto flex items-center justify-center">
-                    <div className="w-4 h-4 rounded-full border-2 border-primary/30" />
+                  <div className="w-12 h-12 rounded-xl bg-muted border border-border mx-auto flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />
                   </div>
-                  <p className="text-sm text-muted-foreground/60 font-mono tracking-wide">Settings — coming soon</p>
+                  <p className="text-sm text-muted-foreground">Instellingen — binnenkort beschikbaar</p>
                 </div>
               </div>
             )}
           </div>
-        </div>
 
-        {/* Right panel - Telemetry */}
-        {view === "chat" && (
-          <div className="hidden xl:block w-72 border-l border-border/40 backdrop-blur-lg bg-card/40">
-            <TelemetryPanel />
-          </div>
-        )}
+          {/* Right panel - Telemetry */}
+          {view === "chat" && (
+            <div className="hidden xl:block w-72 border-l border-border bg-card/75 backdrop-blur-sm">
+              <TelemetryPanel />
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
