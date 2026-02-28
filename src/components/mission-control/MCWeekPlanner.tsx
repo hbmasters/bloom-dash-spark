@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Plus, X, GripVertical, ChevronLeft, ChevronRight, Clock, Target, Flame, Check, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PageAgentBadges from "./PageAgentBadges";
 import { format, startOfWeek, addDays, addWeeks, subWeeks, isToday, isSameDay } from "date-fns";
 import { nl } from "date-fns/locale";
 
@@ -165,6 +166,7 @@ const MCWeekPlanner = () => {
             <span className="text-xs text-muted-foreground">{weekStats.doneCount}/{weekStats.totalCount} afgerond</span>
           </div>
         </div>
+        <PageAgentBadges pageId="planner" className="mt-2" />
 
         {/* Category filters */}
         <div className="flex items-center gap-1.5 mt-3">
