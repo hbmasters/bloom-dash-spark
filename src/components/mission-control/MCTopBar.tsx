@@ -1,5 +1,6 @@
 import { Search, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import HBMasterLogo from "./HBMasterLogo";
 
 type MCView = "chat" | "kanban" | "history" | "settings";
 
@@ -17,10 +18,11 @@ const viewTitles: Record<MCView, string> = {
 
 const MCTopBar = ({ view, onNewChat }: MCTopBarProps) => {
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border px-6 flex-shrink-0 bg-card/60 backdrop-blur-xl">
-      <div className="flex items-center gap-3">
-        <Zap className="w-4 h-4 text-primary" />
-        <h1 className="text-sm font-black text-foreground uppercase tracking-[0.12em]">{viewTitles[view]}</h1>
+    <header className="flex h-14 items-center justify-between border-b border-border px-4 md:px-6 flex-shrink-0 bg-card/60 backdrop-blur-xl">
+      <div className="flex items-center gap-2 md:gap-3">
+        <HBMasterLogo size={28} className="md:hidden shrink-0" />
+        <Zap className="w-4 h-4 text-primary hidden md:block" />
+        <h1 className="text-xs md:text-sm font-black text-foreground uppercase tracking-[0.12em]">{viewTitles[view]}</h1>
       </div>
 
       <div className="flex items-center gap-3">
