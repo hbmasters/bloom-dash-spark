@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Clock, Play, Pause, CheckCircle2, AlertTriangle, XCircle, RotateCw, Zap, Database, Mail, BarChart3, Truck, RefreshCw } from "lucide-react";
+import PageAgentBadges from "./PageAgentBadges";
 
 type CronStatus = "active" | "paused" | "error" | "running";
 type CronInterval = string;
@@ -111,6 +112,7 @@ const MCCronJobs = () => {
             {errorCount > 0 && <span className="text-destructive">{errorCount} fout</span>}
           </div>
         </div>
+        <PageAgentBadges pageId="cronjobs" className="mb-3" />
 
         {/* Category filters */}
         <div className="flex gap-1.5">

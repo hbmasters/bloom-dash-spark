@@ -4,6 +4,7 @@ import {
   Factory, Users, PackageX, PieChart, Gauge, ShoppingCart,
   BedDouble, Globe, Sparkles, Filter, ChevronDown
 } from "lucide-react";
+import PageAgentBadges from "./PageAgentBadges";
 
 type KPIStatus = "up" | "down" | "neutral";
 type KPICategory = "productie" | "financieel" | "logistiek" | "hr";
@@ -147,6 +148,7 @@ const KPIDashboard = () => {
         <h2 className="text-xs font-black text-foreground uppercase tracking-wider">KPI Dashboard</h2>
         <span className="text-[9px] font-mono text-muted-foreground/50 ml-1">9 indicatoren</span>
       </div>
+      <PageAgentBadges pageId="kpis" className="mb-3" />
 
       {/* Category filter */}
       <div className="flex items-center gap-1.5 mb-4 flex-wrap">

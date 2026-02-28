@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Brain, TrendingUp, BarChart3, Truck, Flower2, Users, Database, Zap, Clock, Hash, Link2, CheckCircle2, PauseCircle, Filter } from "lucide-react";
+import PageAgentBadges from "./PageAgentBadges";
 
 type MethodStatus = "active" | "inactive";
 type MethodCategory = "productie" | "financieel" | "logistiek" | "kwaliteit" | "hr" | "inkoop";
@@ -122,6 +123,7 @@ const MCMethodiek = () => {
             <span className="text-primary">{totalRuntime} min runtime</span>
           </div>
         </div>
+        <PageAgentBadges pageId="methodiek" className="mb-3" />
 
         {/* Filters */}
         <div className="flex items-center gap-3 flex-wrap">

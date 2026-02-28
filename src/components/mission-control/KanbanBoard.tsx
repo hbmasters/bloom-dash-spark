@@ -4,6 +4,7 @@ import {
   Flower2, Truck, ClipboardCheck, Users, Snowflake, PackageCheck,
   Filter, X, Search, Calendar, User
 } from "lucide-react";
+import PageAgentBadges from "./PageAgentBadges";
 
 type Priority = "high" | "medium" | "low";
 type Category = "productie" | "planning" | "logistiek" | "qc" | "personeel" | "koelcel";
@@ -170,7 +171,7 @@ const KanbanBoard = () => {
       <div className="flex items-center gap-2 mb-3">
         <LayoutGrid className="w-4 h-4 text-muted-foreground" />
         <h2 className="text-xs font-black text-foreground uppercase tracking-wider">Kanban Board</h2>
-
+        <PageAgentBadges pageId="kanban" className="ml-2" />
         <div className="flex items-center gap-2 ml-auto">
           {/* Priority legend — desktop */}
           <div className="hidden lg:flex items-center gap-3 mr-2">

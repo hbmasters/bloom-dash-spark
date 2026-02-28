@@ -3,6 +3,7 @@ import {
   Bell, CheckCircle2, AlertTriangle, Info, XCircle,
   Clock, ChevronDown, Trash2
 } from "lucide-react";
+import PageAgentBadges from "./PageAgentBadges";
 
 type NotifLevel = "info" | "success" | "warning" | "error";
 
@@ -83,6 +84,7 @@ const MCNotifications = () => {
           </button>
         )}
       </div>
+      <PageAgentBadges pageId="notifications" className="px-4 pb-2" />
 
       {/* Filters */}
       <div className="flex items-center gap-1.5 px-4 pb-3 flex-wrap">
