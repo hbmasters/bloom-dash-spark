@@ -26,7 +26,7 @@ const MissionControl = () => {
       </div>
 
       <div className="flex flex-1 flex-col overflow-hidden relative">
-        <MCHologramBackground />
+        {view !== "chat" && <MCHologramBackground />}
         <MCTopBar view={view} mobileMenu={<MCMobileMenu active={view} onNavigate={setView} />} />
 
         {/* Main content */}
