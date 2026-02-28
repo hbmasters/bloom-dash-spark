@@ -1,6 +1,9 @@
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { Bot, Zap, Brain, Truck, Flower2, Users, BarChart3, Database, Mail, Shield, Filter, CheckCircle2, PauseCircle, Activity, MessageSquare } from "lucide-react";
+import {
+  Bot, Zap, Brain, Truck, Flower2, Users, BarChart3, Database, Mail, Shield,
+  Filter, Activity, MessageSquare, Cpu, Clock, ArrowRight, Wifi, WifiOff
+} from "lucide-react";
 
 export type AgentStatus = "online" | "standby" | "offline";
 
@@ -17,6 +20,9 @@ export interface Agent {
   avgResponseMs: number;
   lastActive?: string;
   icon: typeof Bot;
+  currentTask?: string;
+  cpuLoad?: number;
+  memoryMb?: number;
 }
 
 export type AgentCategory = "productie" | "data" | "crm" | "logistiek" | "kwaliteit" | "systeem";
@@ -36,60 +42,70 @@ export const agents: Agent[] = [
     description: "Centrale AI die alle sub-agents aanstuurt, prioriteiten bepaalt en de chat-interface beheert.",
     status: "online", model: "GPT-5", category: "systeem", linkedPages: ["chat", "notifications"],
     tasksCompleted: 12480, avgResponseMs: 180, lastActive: "Nu actief", icon: Brain,
+    currentTask: "Coördinatie van 7 actieve sub-agents", cpuLoad: 34, memoryMb: 512,
   },
   {
     id: "agent-production", name: "ProductieAgent", role: "Lijnmonitoring & Optimalisatie",
     description: "Bewaakt realtime productiedata, signaleert afwijkingen en optimaliseert lijnbezetting.",
     status: "online", model: "Gemini 2.5 Flash", category: "productie", linkedPages: ["kpis", "methodiek", "cronjobs"],
     tasksCompleted: 8340, avgResponseMs: 95, lastActive: "12 sec geleden", icon: Activity,
+    currentTask: "Lijn 3 efficiency analyse", cpuLoad: 62, memoryMb: 256,
   },
   {
     id: "agent-data", name: "DataAgent", role: "Analyse & Rapportage",
     description: "Voert data-analyses uit, genereert rapporten en berekent KPI's op basis van warehouse data.",
     status: "online", model: "Gemini 2.5 Pro", category: "data", linkedPages: ["kpis", "methodiek", "cronjobs"],
     tasksCompleted: 5620, avgResponseMs: 420, lastActive: "2 min geleden", icon: BarChart3,
+    currentTask: "Dagrapport genereren", cpuLoad: 78, memoryMb: 1024,
   },
   {
     id: "agent-crm", name: "CRM Agent", role: "Klantbeheer & Orders",
     description: "Beheert klantrelaties, verwerkt orders en synchroniseert CRM-data met productieplanning.",
     status: "online", model: "GPT-5 Mini", category: "crm", linkedPages: ["kanban", "notifications"],
     tasksCompleted: 3890, avgResponseMs: 210, lastActive: "45 sec geleden", icon: Users,
+    currentTask: "Orderverwerking batch #4871", cpuLoad: 41, memoryMb: 384,
   },
   {
     id: "agent-logistics", name: "LogistiekAgent", role: "Transport & Supply Chain",
     description: "Optimaliseert transportroutes, bewaakt levertijden en coördineert supply chain operaties.",
     status: "standby", model: "Gemini 2.5 Flash", category: "logistiek", linkedPages: ["cronjobs", "methodiek"],
     tasksCompleted: 1560, avgResponseMs: 340, lastActive: "15 min geleden", icon: Truck,
+    cpuLoad: 2, memoryMb: 128,
   },
   {
     id: "agent-florist", name: "FloristAgent", role: "Receptuur & Samenstelling",
     description: "Beheert bloemenrecepturen, optimaliseert samenstellingen en bewaakt kwaliteitsstandaarden.",
     status: "online", model: "GPT-5 Mini", category: "kwaliteit", linkedPages: ["methodiek", "kpis"],
     tasksCompleted: 2240, avgResponseMs: 155, lastActive: "5 min geleden", icon: Flower2,
+    currentTask: "Receptuur optimalisatie Charme XL", cpuLoad: 28, memoryMb: 192,
   },
   {
     id: "agent-quality", name: "KwaliteitAgent", role: "Kwaliteitscontrole & Derving",
     description: "Monitort dervingspercentages, identificeert kwaliteitsproblemen en voorspelt uitval.",
     status: "online", model: "Gemini 2.5 Pro", category: "kwaliteit", linkedPages: ["kpis", "methodiek", "notifications"],
     tasksCompleted: 4120, avgResponseMs: 280, lastActive: "30 sec geleden", icon: Shield,
+    currentTask: "Dervingsanalyse batch #2204", cpuLoad: 55, memoryMb: 768,
   },
   {
     id: "agent-planner", name: "PlanAgent", role: "Planning & Scheduling",
     description: "Genereert weekplanningen, optimaliseert bezetting en beheert de persoonlijke planner.",
     status: "online", model: "GPT-5 Mini", category: "productie", linkedPages: ["planner", "kanban"],
     tasksCompleted: 960, avgResponseMs: 190, lastActive: "3 min geleden", icon: MessageSquare,
+    currentTask: "Weekplanning week 10 optimalisatie", cpuLoad: 19, memoryMb: 256,
   },
   {
     id: "agent-kenya", name: "Kenya Agent", role: "Farm Data & Opbrengst",
     description: "Synchroniseert en analyseert opbrengstdata vanuit Keniaanse farms.",
     status: "offline", model: "Gemini 2.5 Flash Lite", category: "data", linkedPages: ["methodiek", "cronjobs"],
     tasksCompleted: 480, avgResponseMs: 520, lastActive: "6 uur geleden", icon: Database,
+    cpuLoad: 0, memoryMb: 0,
   },
   {
     id: "agent-notify", name: "NotificatieAgent", role: "Alerts & Communicatie",
     description: "Verzendt slimme notificaties, filtert ruis en escaleert kritieke meldingen naar de juiste personen.",
     status: "online", model: "GPT-5 Nano", category: "systeem", linkedPages: ["notifications"],
     tasksCompleted: 15200, avgResponseMs: 45, lastActive: "Nu actief", icon: Mail,
+    currentTask: "Prioritering van 3 nieuwe alerts", cpuLoad: 8, memoryMb: 64,
   },
 ];
 
@@ -104,6 +120,17 @@ const pageLabels: Record<string, string> = {
   planner: "Planner", cronjobs: "Cron Jobs", methodiek: "Methodiek", history: "Historie",
 };
 
+/* ── Mini resource bar ── */
+const ResourceBar = ({ label, value, max, unit, color }: { label: string; value: number; max: number; unit: string; color: string }) => (
+  <div className="flex items-center gap-2">
+    <span className="text-[9px] font-mono text-muted-foreground/50 w-8">{label}</span>
+    <div className="flex-1 h-1 rounded-full bg-muted/30 overflow-hidden max-w-[60px]">
+      <div className={cn("h-full rounded-full transition-all", color)} style={{ width: `${Math.min((value / max) * 100, 100)}%` }} />
+    </div>
+    <span className="text-[9px] font-mono text-muted-foreground/60">{value}{unit}</span>
+  </div>
+);
+
 const MCAgents = () => {
   const [filterCategory, setFilterCategory] = useState<AgentCategory | null>(null);
   const [filterStatus, setFilterStatus] = useState<AgentStatus | null>(null);
@@ -117,6 +144,7 @@ const MCAgents = () => {
   }, [filterCategory, filterStatus]);
 
   const onlineCount = agents.filter(a => a.status === "online").length;
+  const totalCpu = Math.round(agents.reduce((s, a) => s + (a.cpuLoad || 0), 0) / agents.filter(a => a.status === "online").length);
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -128,8 +156,8 @@ const MCAgents = () => {
             <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">OpenClaw CRM — Agents</h2>
           </div>
           <div className="flex items-center gap-3 text-[10px] font-mono">
-            <span className="text-emerald-400">{onlineCount} online</span>
-            <span className="text-muted-foreground">{agents.length} totaal</span>
+            <span className="text-emerald-400 flex items-center gap-1"><Wifi className="w-3 h-3" />{onlineCount} online</span>
+            <span className="text-muted-foreground/60">Ø {totalCpu}% CPU</span>
           </div>
         </div>
 
@@ -166,40 +194,80 @@ const MCAgents = () => {
             const Icon = agent.icon;
 
             return (
-              <div key={agent.id} className={cn("rounded-xl border p-4 transition-all hover:scale-[1.005]", catCfg.bg, catCfg.border, agent.status === "offline" && "opacity-50")}>
-                <div className="flex items-start gap-3">
-                  {/* Avatar */}
-                  <div className={cn("relative p-2.5 rounded-xl border flex-shrink-0", catCfg.bg, catCfg.border)}>
-                    <Icon className={cn("w-5 h-5", catCfg.color)} />
-                    <div className={cn("absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-card", stCfg.dot, agent.status === "online" && "animate-pulse")} />
+              <div key={agent.id} className={cn(
+                "rounded-xl border bg-card/60 backdrop-blur-sm transition-all hover:bg-card/80",
+                stCfg.border,
+                agent.status === "offline" && "opacity-40"
+              )}>
+                {/* Top: Identity */}
+                <div className="p-4 pb-3">
+                  <div className="flex items-start gap-3">
+                    <div className={cn("relative p-3 rounded-xl border", catCfg.bg, catCfg.border)}>
+                      <Icon className={cn("w-6 h-6", catCfg.color)} />
+                      <div className={cn("absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card", stCfg.dot, agent.status === "online" && "animate-pulse")} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-sm font-bold text-foreground">{agent.name}</h3>
+                        <span className={cn("text-[9px] font-mono px-1.5 py-0.5 rounded-full border", stCfg.text, stCfg.bg, stCfg.border)}>{stCfg.label}</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{agent.role}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Cpu className="w-3 h-3 text-muted-foreground/40" />
+                        <span className="text-[9px] font-mono text-muted-foreground">{agent.model}</span>
+                        <span className="text-[9px] font-mono text-muted-foreground/40">·</span>
+                        <span className="text-[9px] font-mono text-muted-foreground">{agent.avgResponseMs}ms</span>
+                      </div>
+                    </div>
                   </div>
+                </div>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-bold text-foreground">{agent.name}</h3>
-                      <span className={cn("text-[9px] font-mono px-1.5 py-0.5 rounded-full border", stCfg.text, stCfg.bg, stCfg.border)}>{stCfg.label}</span>
-                      <span className={cn("text-[9px] font-medium px-1.5 py-0.5 rounded-full border", catCfg.color, catCfg.bg, catCfg.border)}>{catCfg.label}</span>
+                {/* Current task — unique to agents */}
+                {agent.currentTask && agent.status === "online" && (
+                  <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-primary/5 border border-primary/10">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shrink-0" />
+                      <span className="text-[10px] font-mono text-foreground/80 truncate">{agent.currentTask}</span>
                     </div>
-                    <p className="text-[10px] font-medium text-foreground/70 mt-0.5">{agent.role}</p>
-                    <p className="text-[11px] text-muted-foreground mt-1">{agent.description}</p>
+                  </div>
+                )}
 
-                    {/* Metrics */}
-                    <div className="flex items-center gap-3 mt-2.5 flex-wrap">
-                      <span className="text-[9px] font-mono text-muted-foreground/60">Model: <span className="text-muted-foreground">{agent.model}</span></span>
-                      <span className="text-[9px] font-mono text-muted-foreground/60">{agent.tasksCompleted.toLocaleString("nl-NL")} taken</span>
-                      <span className="text-[9px] font-mono text-muted-foreground/60">{agent.avgResponseMs}ms avg</span>
-                      {agent.lastActive && <span className="text-[9px] font-mono text-muted-foreground/40">{agent.lastActive}</span>}
+                {agent.status === "standby" && (
+                  <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-muted/20 border border-border">
+                    <span className="text-[10px] font-mono text-muted-foreground/60 italic">Wacht op instructies…</span>
+                  </div>
+                )}
+
+                {agent.status === "offline" && (
+                  <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-muted/10 border border-border">
+                    <div className="flex items-center gap-1.5">
+                      <WifiOff className="w-3 h-3 text-muted-foreground/30" />
+                      <span className="text-[10px] font-mono text-muted-foreground/40">Offline sinds {agent.lastActive}</span>
                     </div>
+                  </div>
+                )}
 
-                    {/* Linked pages */}
-                    <div className="flex items-center gap-1 mt-2 flex-wrap">
-                      <Zap className="w-3 h-3 text-muted-foreground/30" />
-                      {agent.linkedPages.map(p => (
-                        <span key={p} className="text-[8px] font-mono px-1.5 py-0.5 rounded border border-border text-muted-foreground/60 bg-muted/10">
-                          {pageLabels[p] || p}
-                        </span>
-                      ))}
+                {/* Bottom: Resources + stats */}
+                <div className="px-4 py-3 border-t border-border/40 bg-muted/5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <ResourceBar label="CPU" value={agent.cpuLoad || 0} max={100} unit="%" color={
+                        (agent.cpuLoad || 0) > 70 ? "bg-amber-400" : "bg-primary"
+                      } />
+                      <ResourceBar label="MEM" value={agent.memoryMb || 0} max={1024} unit="MB" color="bg-blue-400" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-mono text-muted-foreground">{agent.tasksCompleted.toLocaleString("nl-NL")} taken</p>
+                      <div className="flex items-center gap-1 mt-1 justify-end">
+                        {agent.linkedPages.slice(0, 3).map(p => (
+                          <span key={p} className="text-[8px] font-mono px-1 py-0.5 rounded border border-border text-muted-foreground/50">
+                            {pageLabels[p] || p}
+                          </span>
+                        ))}
+                        {agent.linkedPages.length > 3 && (
+                          <span className="text-[8px] font-mono text-muted-foreground/30">+{agent.linkedPages.length - 3}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
