@@ -1,9 +1,9 @@
-import { MessageSquare, LayoutGrid, Clock, Settings, X, ArrowLeft, BarChart3, Bell, CalendarDays, Timer } from "lucide-react";
+import { MessageSquare, LayoutGrid, Clock, Settings, X, ArrowLeft, BarChart3, Bell, CalendarDays, Timer, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import HBMasterLogo from "./HBMasterLogo";
 
-type MCView = "chat" | "kanban" | "history" | "kpis" | "notifications" | "planner" | "status" | "cronjobs" | "settings";
+type MCView = "chat" | "kanban" | "history" | "kpis" | "notifications" | "planner" | "status" | "cronjobs" | "methodiek" | "settings";
 
 interface MCMobileMenuProps {
   active: MCView;
@@ -19,6 +19,7 @@ const navItems: { id: MCView; icon: typeof MessageSquare; label: string }[] = [
   { id: "notifications", icon: Bell, label: "Notificaties" },
   { id: "planner", icon: CalendarDays, label: "Weekplanner" },
   { id: "cronjobs", icon: Timer, label: "Cron Jobs" },
+  { id: "methodiek", icon: Brain, label: "Methodiek" },
   { id: "history", icon: Clock, label: "Historie" },
   { id: "settings", icon: Settings, label: "Instellingen" },
 ];

@@ -1,4 +1,4 @@
-import { MessageSquare, LayoutGrid, Clock, Settings, ArrowLeft, PanelLeftClose, PanelLeft, BarChart3, Bell, CalendarDays, Timer } from "lucide-react";
+import { MessageSquare, LayoutGrid, Clock, Settings, ArrowLeft, PanelLeftClose, PanelLeft, BarChart3, Bell, CalendarDays, Timer, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-type MCView = "chat" | "kanban" | "history" | "kpis" | "notifications" | "planner" | "status" | "cronjobs" | "settings";
+type MCView = "chat" | "kanban" | "history" | "kpis" | "notifications" | "planner" | "status" | "cronjobs" | "methodiek" | "settings";
 
 interface MCSidebarProps {
   active: MCView;
@@ -23,6 +23,7 @@ const navItems: { id: MCView; icon: typeof MessageSquare; label: string }[] = [
   { id: "notifications", icon: Bell, label: "Notificaties" },
   { id: "planner", icon: CalendarDays, label: "Weekplanner" },
   { id: "cronjobs", icon: Timer, label: "Cron Jobs" },
+  { id: "methodiek", icon: Brain, label: "Methodiek" },
   { id: "history", icon: Clock, label: "Historie" },
   { id: "settings", icon: Settings, label: "Instellingen" },
 ];
