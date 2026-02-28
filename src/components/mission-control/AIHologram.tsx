@@ -31,9 +31,9 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
 
   // Responsive size calculation
   const responsiveSize = useMemo(() => {
-    if (compact) return Math.min(180, containerWidth * 0.45);
-    // Full hologram: scale to fit within viewport without clipping
-    return Math.min(360, containerWidth * 0.7, window.innerHeight * 0.35);
+    if (compact) return Math.min(220, containerWidth * 0.55);
+    // Full hologram: 20% larger, allow particles to extend beyond
+    return Math.min(430, containerWidth * 0.85, window.innerHeight * 0.42);
   }, [compact, containerWidth]);
 
   // Observe container width
@@ -58,9 +58,8 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
     return FLOWER_TYPES[0];
   }, []);
 
-  const createParticle = useCallback((cx: number, cy: number): Particle => {
+  const createParticle = useCallback((cx: number, cy: number, spawnFromEdge = false): Particle => {
     const angle = Math.random() * Math.PI * 2;
-    const dist = (50 + Math.random() * 170);
     const type = pickFlowerType();
     const layer = Math.floor(Math.random() * 3);
     const sizeMultiplier = [0.7, 1, 1.3][layer];
@@ -70,20 +69,24 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
         ? 3.5 + Math.random() * 5
         : 5 + Math.random() * 7;
 
+    // Spawn from far outside and orbit inward, or normal spawn
+    const targetOrbitRadius = 50 + Math.random() * 170;
+    const startRadius = spawnFromEdge ? cx * 1.6 + Math.random() * cx * 0.5 : targetOrbitRadius;
+
     return {
-      x: cx + Math.cos(angle) * dist,
-      y: cy + Math.sin(angle) * dist,
+      x: cx + Math.cos(angle) * startRadius,
+      y: cy + Math.sin(angle) * startRadius,
       vx: (Math.random() - 0.5) * 0.1,
       vy: (Math.random() - 0.5) * 0.1 - 0.06,
       size: baseSize * sizeMultiplier,
-      opacity: (0.3 + Math.random() * 0.5) * [0.5, 0.75, 1][layer],
-      life: Math.random() * 120,
+      opacity: spawnFromEdge ? 0 : (0.3 + Math.random() * 0.5) * [0.5, 0.75, 1][layer],
+      life: spawnFromEdge ? 0 : Math.random() * 120,
       maxLife: 250 + Math.random() * 300,
       type, rotation: Math.random() * Math.PI * 2,
       rotSpeed: (Math.random() - 0.5) * 0.012,
       orbitAngle: angle,
       orbitSpeed: (0.001 + Math.random() * 0.004) * (Math.random() < 0.5 ? 1 : -1) * [0.6, 1, 1.4][layer],
-      orbitRadius: dist, layer,
+      orbitRadius: startRadius, layer,
     };
   }, [pickFlowerType]);
 
@@ -104,7 +107,8 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
     // Scale everything proportionally to canvas size
     const s = size / 480; // scale factor: 1.0 at 480px
     const particleCount = compact ? Math.round(200 * Math.max(s, 0.5)) : Math.round(640 * Math.max(s, 0.4));
-    particlesRef.current = Array.from({ length: particleCount }, () => createParticle(cx, cy));
+    // Spawn most particles from edges so they fly in visibly
+    particlesRef.current = Array.from({ length: particleCount }, (_, i) => createParticle(cx, cy, i < particleCount * 0.7));
 
     // Dynamic hex connection nodes
     const nodeCount = compact ? 8 : 24;
@@ -472,6 +476,16 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
         const p = particles[i];
         p.life++;
 
+        // Gradually shrink orbit radius toward target (particles fly inward)
+        const targetOrbitRadius = 50 + Math.random() * 0.1; // tiny jitter
+        if (p.orbitRadius > 220) {
+          p.orbitRadius *= 0.993; // fly inward smoothly
+        }
+        // Fade in opacity as particle approaches
+        if (p.opacity < 0.6 && p.life < 60) {
+          p.opacity = Math.min(p.opacity + 0.012, 0.3 + Math.random() * 0.4);
+        }
+
         p.orbitAngle += p.orbitSpeed * loadSpin;
         const targetX = cx + Math.cos(p.orbitAngle) * p.orbitRadius * s;
         const targetY = cy + Math.sin(p.orbitAngle) * p.orbitRadius * s;
@@ -516,10 +530,8 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
         ctx.restore();
 
         if (p.life >= p.maxLife) {
-          particles[i] = createParticle(cx, cy);
-          if (state !== "responding") {
-            particles[i].orbitRadius = 50 + Math.random() * 170;
-          }
+          // Respawn from edge so it flies in visibly
+          particles[i] = createParticle(cx, cy, true);
         }
       }
 
@@ -539,7 +551,7 @@ const AIHologram = ({ state, compact = false }: AIHologramProps) => {
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-col items-center justify-center w-full overflow-hidden"
+      className="relative flex flex-col items-center justify-center w-full"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
