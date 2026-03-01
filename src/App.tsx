@@ -10,6 +10,7 @@ import Lijnbezetting from "./pages/Lijnbezetting";
 import MissionControl from "./pages/MissionControl";
 import HBMasterWidgetDemo from "./pages/HBMasterWidgetDemo";
 import RealEstate from "./pages/RealEstate";
+import Dashboards from "./pages/Dashboards";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/hbmaster" element={<MissionControl />} />
           <Route path="/hbmaster-widget" element={<HBMasterWidgetDemo />} />
           <Route path="/realestate" element={<RealEstate />} />
+          <Route path="/dashboards" element={<Dashboards />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
