@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import ColdStorage from "./pages/ColdStorage";
 import Auth from "./pages/Auth";
 import Lijnbezetting from "./pages/Lijnbezetting";
-import MissionControl from "./pages/MissionControl";
 import HBMasterWidgetDemo from "./pages/HBMasterWidgetDemo";
 import RealEstate from "./pages/RealEstate";
 import Dashboards from "./pages/Dashboards";
@@ -26,7 +25,6 @@ const App = () => (
           <Route path="/cold-storage" element={<ColdStorage />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/lijnbezetting" element={<Lijnbezetting />} />
-          <Route path="/hbmaster" element={<MissionControl />} />
           <Route path="/hbmaster-widget" element={<HBMasterWidgetDemo />} />
           <Route path="/realestate" element={<RealEstate />} />
           <Route path="/dashboards" element={<Dashboards />} />

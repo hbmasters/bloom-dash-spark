@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from "react";
-import { flowerDrawers, FlowerType, FLOWER_TYPES, FLOWER_WEIGHTS } from "../mission-control/flowerRenderers";
+import { flowerDrawers, FlowerType, FLOWER_TYPES, FLOWER_WEIGHTS } from "./flowerRenderers";
 
 interface Particle {
   x: number; y: number; vx: number; vy: number;

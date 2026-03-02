@@ -7,7 +7,7 @@ import HighlightsFeed from "@/components/dashboards/HighlightsFeed";
 import InkoopStatsToday from "@/components/dashboards/InkoopStatsToday";
 import VerkoopBouquets from "@/components/dashboards/VerkoopBouquets";
 import HBMasterAlert from "@/components/dashboards/HBMasterAlert";
-import HBMasterLogo from "@/components/mission-control/HBMasterLogo";
+import HBMasterLogo from "@/components/HBMasterLogo";
 import {
   inkoopKPIs, inkoopHighlights,
   verkoopKPIs, verkoopHighlights,
