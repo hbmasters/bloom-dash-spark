@@ -8,7 +8,7 @@ import ColdStorage from "./pages/ColdStorage";
 import Auth from "./pages/Auth";
 import Lijnbezetting from "./pages/Lijnbezetting";
 import HBMasterWidgetDemo from "./pages/HBMasterWidgetDemo";
-import RealEstate from "./pages/RealEstate";
+
 import Dashboards from "./pages/Dashboards";
 import NotFound from "./pages/NotFound";
 
@@ -26,7 +26,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/lijnbezetting" element={<Lijnbezetting />} />
           <Route path="/hbmaster-widget" element={<HBMasterWidgetDemo />} />
-          <Route path="/realestate" element={<RealEstate />} />
+          
           <Route path="/dashboards" element={<Dashboards />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
