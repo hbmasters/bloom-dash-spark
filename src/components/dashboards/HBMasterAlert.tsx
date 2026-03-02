@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Sparkles } from "lucide-react";
-import HBMasterLogo from "@/components/mission-control/HBMasterLogo";
+import HBMasterLogo from "@/components/HBMasterLogo";
 
 const insights = [
   "Inkoop tip: Rozen uit Kenya zijn 12% goedkoper dan Ecuador deze week. Overweeg om het inkoopvolume te verschuiven.",
